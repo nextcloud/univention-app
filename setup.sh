@@ -24,10 +24,12 @@ NC_DATADIR="$NC_PERMDATADIR/nextcloud/data"
 
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
+NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
 
 NC_DB_TYPE="pgsql"
 NC_LOCAL_ADMIN="nc_admin"
 NC_LOCAL_ADMIN_PWD=`pwgen -y 30 1`
+echo "$NC_LOCAL_ADMIN_PWD" > "$NC_ADMIN_PWD_FILE"
 
 cd /var/www/html
 if [ ! -x occ ]; then
@@ -65,30 +67,12 @@ chown -R www-data "$NC_DATADIR"
 "$NC_UCR_FILE"
 
 # basic Nextcloud configuration
-./occ config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
+./occ config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"      # FIXME: fmove to joinscript
 ./occ config:system:set htaccess.RewriteBase --value="/nextcloud/"
 ./occ maintenance:update:htaccess
 ./occ config:system:set --value "\OC\Memcache\APCu" memcache.local
 ./occ app:enable user_ldap
 # TODO: Other settings necessary? Proxy?
-
-# configure LDAP
-NC_LDAP_CID=`./occ ldap:create-empty-config| cut -d"'" -f 2`
-./occ ldap:set-config "$NC_LDAP_CID" "ldapAgentName" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
-./occ ldap:set-config "$NC_LDAP_CID" "KEY" "VAL"
 
 # Apache configuration
 cat /etc/apache2/apache2.conf |awk '/<Directory \/var\/www\/>/,/AllowOverride None/{sub("None", "All",$0)}{print}' > /tmp/apache2.conf && \

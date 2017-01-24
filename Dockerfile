@@ -21,7 +21,8 @@
 
 FROM ubuntu:16.04
 
-COPY resources/nextcloud-11.0.0.tar.bz2 /root/
+COPY resources/nextcloud-11.0.1.tar.bz2 /root/
+COPY resources/ldap-ocs.patch /root/
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -43,7 +44,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	wget \
 	pwgen \
 	sudo \
-	lbzip2
+	lbzip2 \
+	patch
 
 RUN a2enmod ssl
 RUN a2enmod headers
@@ -59,13 +61,14 @@ RUN export NC_DATADIR="/var/lib/nextcloud/" && \
 	mkdir "$NC_DATADIR"
 
 RUN cd /root/ && \
-	tar -xf "nextcloud-11.0.0.tar.bz2" && \
+	tar -xf "nextcloud-11.0.1.tar.bz2" && \
 	mv /root/nextcloud/* /var/www/html/ && \
 	mv /root/nextcloud/.htaccess /var/www/html/.htaccess && \
 	rm -Rf /root/nextcloud && \
-	rm "nextcloud-11.0.0.tar.bz2" && \
+	rm "nextcloud-11.0.1.tar.bz2" && \
 	cd /var/www/html/ && \
-	chmod +x occ
+	chmod +x occ && \
+	patch -p1 < /root/ldap-ocs.patch
 
 # perhaps unnecessary?
 EXPOSE 80
