@@ -64,7 +64,7 @@ chown -R www-data "$NC_DATADIR"
 ./occ app:list
 ./occ upgrade
 
-"$NC_UCR_FILE"
+eval "`cat \"$NC_UCR_FILE\"`"
 
 # basic Nextcloud configuration
 ./occ config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"      # FIXME: fmove to joinscript

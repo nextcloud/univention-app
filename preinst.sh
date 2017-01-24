@@ -22,12 +22,13 @@
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
-ls /var/lib/univention-appcenter/apps/nextcloud
-
-touch "$NC_UCR_FILE" || echo "needs mkdir" && mkdir -p "$NC_PERMCONFDIR" && touch "$NC_UCR_FILE"
+# the folder is not yet created, as expected
+mkdir -p "$NC_PERMCONFDIR"
 
 cat >"$NC_UCR_FILE" <<EOL
-export NC_UCR_DOMAIN=`ucr get domainname`
+export NC_UCR_DOMAIN="`ucr get hostname`"."`ucr get domainname`"
 EOL
+
+chmod +x "$NC_UCR_FILE"
 
 exit 0
