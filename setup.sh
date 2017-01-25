@@ -37,47 +37,55 @@ if [ ! -x occ ]; then
 	exit 1
 fi
 
-mkdir -p "$NC_DATADIR"
-chown www-data:www-data -R "$NC_PERMDATADIR/nextcloud"
+NC_IS_INSTALLED=`./occ status | grep "installed: true" -c`
+NC_IS_UPGRADE=1
 
-./occ maintenance:install \
-    --admin-user    "$NC_LOCAL_ADMIN" \
-    --admin-pass    "$NC_LOCAL_ADMIN_PWD" \
-    --database      "$NC_DB_TYPE" \
-    --database-host "$DB_HOST" \
-    --database-port "$DB_PORT" \
-    --database-name "$DB_NAME" \
-    --database-user "$DB_USER" \
-    --database-pass "$DB_PASSWORD" \
-    --data-dir      "$NC_DATADIR"
+OCC="sudo -u www-data ./occ"
 
-STATE=$?
-if [[ $STATE != 0 ]]; then
-    echo  "Error while installing Nextcloud"
-    exit 1;
+if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
+    NC_IS_UPGRADE=0
+
+    mkdir -p "$NC_DATADIR"
+    chown www-data:www-data -R "$NC_PERMDATADIR/nextcloud"
+    chown www-data:www-data -R config
+    chown www-data:www-data -R apps
+    chown www-data:www-data -R .htaccess
+
+    $OCC maintenance:install \
+        --admin-user    "$NC_LOCAL_ADMIN" \
+        --admin-pass    "$NC_LOCAL_ADMIN_PWD" \
+        --database      "$NC_DB_TYPE" \
+        --database-host "$DB_HOST" \
+        --database-port "$DB_PORT" \
+        --database-name "$DB_NAME" \
+        --database-user "$DB_USER" \
+        --database-pass "$DB_PASSWORD" \
+        --data-dir      "$NC_DATADIR"
+
+    STATE=$?
+    if [[ $STATE != 0 ]]; then
+        echo  "Error while installing Nextcloud"
+        exit 1;
+    fi
+
+    # chown -R www-data "$NC_DATADIR" # TODO: verify it is not needed, remove it then :)
 fi
 
-chown -R www-data "$NC_DATADIR"
-
-./occ check
-./occ status
-./occ app:list
-./occ upgrade
-
-eval "`cat \"$NC_UCR_FILE\"`"
+$OCC check
+$OCC status
+$OCC app:list
+$OCC upgrade
 
 # basic Nextcloud configuration
-./occ config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"      # FIXME: fmove to joinscript
-./occ config:system:set htaccess.RewriteBase --value="/nextcloud/"
-./occ maintenance:update:htaccess
-./occ config:system:set --value "\OC\Memcache\APCu" memcache.local
-./occ app:enable user_ldap
-# TODO: Other settings necessary? Proxy?
+if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
+    eval "`cat \"$NC_UCR_FILE\"`"
 
-# Apache configuration
-cat /etc/apache2/apache2.conf |awk '/<Directory \/var\/www\/>/,/AllowOverride None/{sub("None", "All",$0)}{print}' > /tmp/apache2.conf && \
-mv /tmp/apache2.conf /etc/apache2/apache2.conf
-sed -i '/SSLEngine on/a Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains;"' /etc/apache2/sites-enabled/default-ssl.conf
+    $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"      # FIXME: fmove to joinscript
+    $OCC config:system:set htaccess.RewriteBase --value="/nextcloud/"
+    $OCC maintenance:update:htaccess
+    $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
+    $OCC app:enable user_ldap
+    # TODO: Other settings necessary? Proxy?
+fi
 
-# TODO LDAP Configuration
 
