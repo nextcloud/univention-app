@@ -70,6 +70,7 @@ RUN cd /root/ && \
 	chmod +x occ && \
 	patch -p1 < /root/ldap-ocs.patch
 
+RUN sed -i '/DocumentRoot \/var\/www\/html/a \\tAlias \/nextcloud \/var\/www\/html' /etc/apache2/sites-enabled/000-default.conf
+
 # perhaps unnecessary?
 EXPOSE 80
-EXPOSE 443
