@@ -1,0 +1,57 @@
+#--------------------------------------------------------------------------
+# Copyright (c) 2017 Arthur Schiwon <blizzz@arthur-schiwon.de>
+#
+# Author: Arthur Schiwon <blizzz@arthur-schiwon.de>
+#--------------------------------------------------------------------------
+# GNU AGPL version 3 or any later version
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#--------------------------------------------------------------------------
+# 1.3.6.1.4.1.49213      Nextcloud OID
+# 1.3.6.1.4.1.49213.1    Nextcloud LDAP Elements
+# 1.3.6.1.4.1.49213.1.1  AttributeTypes
+# 1.3.6.1.4.1.49213.1.2  ObjectClasses
+#--------------------------------------------------------------------------
+
+# Attribute Types
+#-----------------
+
+attributetype ( 1.3.6.1.4.1.49213.1.1.1 NAME 'nextcloudEnabled'
+        DESC 'whether user or group should be available in Nextcloud'
+        EQUALITY booleanMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE)
+
+attributetype ( 1.3.6.1.4.1.49213.1.1.2 NAME 'nextcloudQuota'
+        DESC 'defines how much disk space is available for the user'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE)
+
+# Object Classes
+#---------------
+
+objectclass ( 1.3.6.1.4.1.49213.1.2.1 NAME 'nextcloudUser'
+        DESC 'A Nextcloud user'
+        SUP top AUXILIARY
+        MUST ( cn  )
+        MAY ( nextcloudEnabled $ nextcloudQuota )
+        )
+
+objectclass ( 1.3.6.1.4.1.49213.1.2.2 NAME 'nextcloudGroup'
+        DESC 'A Nextcloud group'
+        SUP top AUXILIARY
+        MUST ( cn  )
+        MAY ( nextcloudEnabled )
+        )
