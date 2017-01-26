@@ -37,10 +37,10 @@ if [ ! -x occ ]; then
 	exit 1
 fi
 
-NC_IS_INSTALLED=`./occ status | grep "installed: true" -c`
-NC_IS_UPGRADE=1
-
 OCC="sudo -u www-data ./occ"
+
+NC_IS_INSTALLED=`$OCC status | grep "installed: true" -c`
+NC_IS_UPGRADE=1
 
 if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
     NC_IS_UPGRADE=0
