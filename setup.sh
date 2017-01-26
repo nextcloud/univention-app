@@ -47,9 +47,6 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
 
     mkdir -p "$NC_DATADIR"
     chown www-data:www-data -R "$NC_PERMDATADIR/nextcloud"
-    chown www-data:www-data -R config
-    chown www-data:www-data -R apps
-    chown www-data:www-data -R .htaccess
 
     $OCC maintenance:install \
         --admin-user    "$NC_LOCAL_ADMIN" \

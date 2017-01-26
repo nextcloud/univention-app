@@ -68,7 +68,9 @@ RUN cd /root/ && \
 	rm "nextcloud-11.0.1.tar.bz2" && \
 	cd /var/www/html/ && \
 	chmod +x occ && \
-	patch -p1 < /root/ldap-ocs.patch
+	patch -p1 < /root/ldap-ocs.patch && \
+	rm /root/ldap-ocs.patch && \
+	chown -R www-data /var/www/html
 
 RUN sed -i '/DocumentRoot \/var\/www\/html/a \\tAlias \/nextcloud \/var\/www\/html' /etc/apache2/sites-enabled/000-default.conf
 
