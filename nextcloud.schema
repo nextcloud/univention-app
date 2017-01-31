@@ -30,8 +30,10 @@
 
 attributetype ( 1.3.6.1.4.1.49213.1.1.1 NAME 'nextcloudEnabled'
         DESC 'whether user or group should be available in Nextcloud'
-        EQUALITY booleanMatch
-        SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE)
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE)
+
 
 attributetype ( 1.3.6.1.4.1.49213.1.1.2 NAME 'nextcloudQuota'
         DESC 'defines how much disk space is available for the user'
