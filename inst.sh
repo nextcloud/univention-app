@@ -121,9 +121,9 @@ nextcloud_ensure_extended_attributes () {
         --set ldapMapping='nextcloudEnabled' \
         --set objectClass='nextcloudUser' \
         --set name='nextcloudUserEnabled' \
-        --set shortDescription='Nextcloud enabled' \
-        --set longDescription='whether user or group should be available in Nextcloud ' \
-        --set translationShortDescription='"de_DE" "Nextloud aktiviert"' \
+        --set shortDescription='Access to Nextcloud' \
+        --set longDescription='Whether user may access Nextcloud' \
+        --set translationShortDescription='"de_DE" "Zugang für Nextloud"' \
         --set translationLongDescription='"de_DE" "Der Benutzer kann auf Nextcloud zugreifen"' \
         --set tabName='Nextcloud' \
         --set translationTabName='"de_DE" "Nextcloud"' \
@@ -144,6 +144,62 @@ nextcloud_ensure_extended_attributes () {
         --dn "cn=nextcloudUserEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
         --set tabAdvanced='1' \
         --set default="1"
+
+    univention-directory-manager settings/extended_attribute create "$@" \
+        --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="users/user" \
+        --set ldapMapping='nextcloudQuota' \
+        --set objectClass='nextcloudUser' \
+        --set name='nextcloudUserQuota' \
+        --set shortDescription='Nextcloud Quota' \
+        --set longDescription='Amount of storage available to the user' \
+        --set translationShortDescription='"de_DE" "Nextcloud Quota"' \
+        --set translationLongDescription='"de_DE" "Der verfügbare Speicherplatz für den Benutzer"' \
+        --set tabName='Nextcloud' \
+        --set translationTabName='"de_DE" "Nextcloud"' \
+        --set overwriteTab='0' \
+        --set valueRequired='0' \
+        --set CLIName='nextcloudQuota' \
+        --set syntax='string' \
+        --set default="" \
+        --set tabAdvanced='1' \
+        --set mayChange='1' \
+        --set multivalue='0' \
+        --set deleteObjectClass='0' \
+        --set tabPosition='1' \
+        --set overwritePosition='0' \
+        --set doNotSearch='0' \
+        --set hook='None' || \
+    univention-directory-manager settings/extended_attribute modify "$@" \
+		--dn "cn=nextcloudUserQuota,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
+        --set tabAdvanced='1'
+
+    univention-directory-manager settings/extended_attribute create "$@" \
+        --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="groups/group" \
+        --set ldapMapping='nextcloudEnabled' \
+        --set objectClass='nextcloudGroup' \
+        --set name='nextcloudGroupEnabled' \
+        --set shortDescription='Available in Nextcloud' \
+        --set longDescription='The group is available in Nextcloud' \
+        --set translationShortDescription='"de_DE" "In Nextcloud verfügbar"' \
+        --set translationLongDescription='"de_DE" "Die Gruppe ist in Nextcloud verfügbar"' \
+        --set tabName='Nextcloud' \
+        --set translationTabName='"de_DE" "Nextcloud"' \
+        --set overwriteTab='0' \
+        --set valueRequired='0' \
+        --set CLIName='nextcloudEnabled' \
+        --set syntax='boolean' \
+        --set default="0" \
+        --set tabAdvanced='0' \
+        --set mayChange='1' \
+        --set multivalue='0' \
+        --set deleteObjectClass='0' \
+        --set tabPosition='1' \
+        --set overwritePosition='0' \
+        --set doNotSearch='0' \
+        --set hook='None' || \
+    univention-directory-manager settings/extended_attribute modify "$@" \
+		--dn "cn=nextcloudGroupEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
+        --set tabAdvanced='1'
 }
 
 # Enables all Users that fit the filter to access Nextcloud
@@ -151,7 +207,7 @@ nextcloud_modify_users() {
     local JoinUsersFilter="(&(|(&(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=nextcloud-systemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=nextcloudUser)))"
 
     for dn in $(udm users/user list "$@" --filter "$JoinUsersFilter" | sed -ne 's/^DN: //p') ; do
-        echo "modyfing $dn .."
+        echo "modifying $dn .."
         udm users/user modify "$@" --dn "$dn" \
             --set nextcloudEnabled="1" \
             --set nextcloudQuota=""
