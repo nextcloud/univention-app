@@ -40,6 +40,7 @@ nextcloud_main() {
         IS_UPDATE=true
     fi
     ucs_addServiceToLocalhost "${SERVICE}" "$@"
+    nextcloud_ensure_ucr
     nextcloud_attempt_memberof_support
     nextcloud_ensure_system_user
     joinscript_register_schema
@@ -52,6 +53,26 @@ nextcloud_main() {
 }
 
 # moar settings: quota,homeAttr,groupSearchAttr
+
+# ensures that UCR variables are set. They can be used to pre-set Nextcloud settings before install
+nextcloud_ensure_ucr() {
+    ucr set nextcloud/ucs/modifyUsersFilter?"(&(|(&(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=nextcloud-systemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=nextcloudUser)))" \
+            nextcloud/ucs/userEnabled?"1" \
+            nextcloud/ucs/userQuota?"" \
+            nextcloud/ldap/cacheTTL?"600" \
+            nextcloud/ldap/homeFolderAttribute?"" \
+            nextcloud/ldap/userSearchAttributes?"uid;givenName;sn;employeeNumber;mailPrimaryAddress" \
+            nextcloud/ldap/userDisplayName?"displayName" \
+            nextcloud/ldap/groupDisplayName?"cn" \
+            nextcloud/ldap/base?"$ldap_base" \
+            nextcloud/ldap/baseUsers?"cn=users,$ldap_base" \
+            nextcloud/ldap/baseGroups?"cn=groups,$ldap_base" \
+            nextcloud/ldap/filterLogin?"(&(objectclass=nextcloudUser)(nextcloudEnabled=1)(uid=%uid))" \
+            nextcloud/ldap/filterUsers?"(&(objectclass=nextcloudUser)(nextcloudEnabled=1))" \
+            nextcloud/ldap/filterGroups?"(&(objectclass=nextcloudGroup)(nextcloudEnabled=1))" \
+
+    eval "$(ucr shell)"
+}
 
 # adds a Nextcloud system user, if it is not already present
 nextcloud_ensure_system_user() {
@@ -79,24 +100,26 @@ nextcloud_confiugre_ldap_backend() {
     data+="&configData[ldapPort]="`nextcloud_urlEncode "$ldap_server_port"`
     data+="&configData[ldapAgentName]="`nextcloud_urlEncode "uid=nextcloud-systemuser,cn=users,$ldap_base"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_PWD"`
-    data+="&configData[ldapBase]="`nextcloud_urlEncode "$ldap_base"`
-    data+="&configData[ldapBaseUsers]="`nextcloud_urlEncode "cn=users,$ldap_base"`
-    data+="&configData[ldapBaseGroups]="`nextcloud_urlEncode "cn=groups,$ldap_base"`
-    data+="&configData[ldapUserFilter]="`nextcloud_urlEncode "(&(objectclass=nextcloudUser)(nextcloudEnabled=1))"`
+    data+="&configData[ldapBase]="`nextcloud_urlEncode "$nextcloud_ldap_base"`
+    data+="&configData[ldapBaseUsers]="`nextcloud_urlEncode "$nextcloud_ldap_baseUsers"`
+    data+="&configData[ldapBaseGroups]="`nextcloud_urlEncode "$nextcloud_ldap_baseGroups"`
+    data+="&configData[ldapUserFilter]="`nextcloud_urlEncode "$nextcloud_ldap_filterUsers"`
     data+="&configData[ldapUserFilterMode]=1"
-    data+="&configData[ldapLoginFilter]="`nextcloud_urlEncode "(&(objectclass=nextcloudUser)(nextcloudEnabled=1)(uid=%uid))"`
+    data+="&configData[ldapLoginFilter]="`nextcloud_urlEncode "$nextcloud_ldap_filterLogin"`
     data+="&configData[ldapLoginFilterMode]=1"
     data+="&configData[ldapLoginFilterUsername]=1"
-    data+="&configData[ldapGroupFilter]="`nextcloud_urlEncode "(&(objectclass=nextcloudGroup)(nextcloudEnabled=1))"`
+    data+="&configData[ldapGroupFilter]="`nextcloud_urlEncode "$nextcloud_ldap_filterGroups"`
     data+="&configData[ldapGroupFilterMode]=1"
     data+="&configData[ldapGroupFilterObjectclass]=nextcloudGroup"
-    data+="&configData[ldapUserDisplayName]=uid"
-    data+="&configData[ldapGroupDisplayName]=cn"
+    data+="&configData[ldapUserDisplayName]="`nextcloud_urlEncode "$nextcloud_ldap_userDisplayName"`
+    data+="&configData[ldapGroupDisplayName]="`nextcloud_urlEncode "$nextcloud_ldap_groupDisplayName"`
     data+="&configData[ldapEmailAttribute]=mailPrimaryAddress"
+    data+="&configData[ldapQuotaAttribute]=nextcloudQuota"
+    data+="&configData[homeFolderNamingRule]="`nextcloud_urlEncode "$nextcloud_ldap_homeFolderAttribute"`
     data+="&configData[ldapGroupMemberAssocAttr]=uniqueMember"
-    data+="&configData[ldapCacheTTL]=600"
+    data+="&configData[ldapCacheTTL]="`nextcloud_urlEncode "$nextcloud_ldap_cacheTTL"`
     data+="&configData[ldapConfigurationActive]=1"
-    data+="&configData[ldapAttributesForUserSearch]="`nextcloud_urlEncode "uid;givenName;sn;employeeNumber;mailPrimaryAddress"`
+    data+="&configData[ldapAttributesForUserSearch]="`nextcloud_urlEncode "$nextcloud_ldap_userSearchAttributes"`
     data+="&configData[ldapExpertUsernameAttr]=uid"
     data+="&configData[ldapExpertUUIDUserAttr]="
     data+="&configData[useMemberOfToDetectMembership]=$NC_MEMBER_OF"
@@ -138,7 +161,6 @@ nextcloud_add_Administrator_to_admin_group() {
         echo $RESULT
         return
     fi
-
 }
 
 nextcloud_urlEncode() {
@@ -240,18 +262,16 @@ nextcloud_ensure_extended_attributes () {
 
 # Enables all Users that fit the filter to access Nextcloud
 nextcloud_modify_users() {
-    if [ $IS_UPDATE = true ] ; then
-        echo "Not attempting to modify users, because NC is already installed and set up."
+    if [ $IS_UPDATE = true ] || [ -z "$nextcloud_ucs_modifyUsersFilter"  ] ; then
+        echo "Not attempting to modify users."
         return
     fi
 
-    local JoinUsersFilter="(&(|(&(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=nextcloud-systemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=nextcloudUser)))"
-
-    for dn in $(udm users/user list "$@" --filter "$JoinUsersFilter" | sed -ne 's/^DN: //p') ; do
+    for dn in $(udm users/user list "$@" --filter "$nextcloud_ucs_modifyUsersFilter" | sed -ne 's/^DN: //p') ; do
         echo "modifying $dn .."
         udm users/user modify "$@" --dn "$dn" \
-            --set nextcloudEnabled="1" \
-            --set nextcloudQuota=""
+            --set nextcloudEnabled="$nextcloud_ucs_userEnabled" \
+            --set nextcloudQuota="$nextcloud_ucs_userQuota"
     done
 }
 
