@@ -30,12 +30,15 @@ joinscript_init
 eval "$(ucr shell)"
 
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
-NC_LDAP_SYSUSER_PWD_FILE="$NC_PERMCONFDIR/ldap/nextcloud.secret"
 NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
 NC_MEMBER_OF=0
 HOST="https://${hostname}.${domainname}/nextcloud"
+IS_UPDATE=false
 
 nextcloud_main() {
+    if [ -e $(joinscript_container_file "/etc/nextcloud.secret") ] ; then
+        IS_UPDATE=true
+    fi
     ucs_addServiceToLocalhost "${SERVICE}" "$@"
     nextcloud_attempt_memberof_support
     nextcloud_ensure_system_user
@@ -43,6 +46,7 @@ nextcloud_main() {
     nextcloud_ensure_extended_attributes
     nextcloud_confiugre_ldap_backend
     nextcloud_modify_users
+    nextcloud_add_Administrator_to_admin_group
     joinscript_save_current_version
     exit 0
 }
@@ -51,7 +55,7 @@ nextcloud_main() {
 
 # adds a Nextcloud system user, if it is not already present
 nextcloud_ensure_system_user() {
-    if [ ! -e $NC_LDAP_SYSUSER_PWD_FILE ] ; then
+    if [ ! $IS_UPDATE = true ] ; then
         joinscript_add_simple_app_system_user "$@"
     fi
 }
@@ -64,6 +68,10 @@ nextcloud_attempt_memberof_support() {
 
 # configures the LDAP backend at Nextcloud using its OCS API
 nextcloud_confiugre_ldap_backend() {
+    if [ $IS_UPDATE = true ] ; then
+        echo "Not attempting to set LDAP configuration, because NC is already installed and set up."
+        return
+    fi
     local NC_LDAP_PWD=`cat $(joinscript_container_file "/etc/nextcloud.secret")`
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
 
@@ -88,7 +96,7 @@ nextcloud_confiugre_ldap_backend() {
     data+="&configData[ldapGroupMemberAssocAttr]=uniqueMember"
     data+="&configData[ldapCacheTTL]=600"
     data+="&configData[ldapConfigurationActive]=1"
-    data+="&configData[ldapAttributesForUserSearch]="`nextcloud_urlEncode "uid,givenName,sn,employeeNumber,mailPrimaryAddress"`
+    data+="&configData[ldapAttributesForUserSearch]="`nextcloud_urlEncode "uid;givenName;sn;employeeNumber;mailPrimaryAddress"`
     data+="&configData[ldapExpertUsernameAttr]=uid"
     data+="&configData[ldapExpertUUIDUserAttr]="
     data+="&configData[useMemberOfToDetectMembership]=$NC_MEMBER_OF"
@@ -96,13 +104,41 @@ nextcloud_confiugre_ldap_backend() {
     data+="&configData[turnOnPasswordChange]=0"
     data+="&configData[ldapExperiencedAdmin]=1"
 
-    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X POST -H "OCS-APIREQUEST: true"  -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"`
+    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X POST -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"`
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
     if [ ! $STATUS -eq 1 ] ; then
         die "Could not create LDAP Config at Nextcloud"
     fi
     CONFIGID=`echo $RESULT | grep -oP '(?<=<configID>).*?(?=</configID>)'`
-    curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID"
+    curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" > /dev/null
+}
+
+nextcloud_add_Administrator_to_admin_group() {
+    if [ $IS_UPDATE = true ] ; then
+        echo "Not attempting to add Administrator to admin group, because NC is already installed and set up."
+        return
+    fi
+
+    local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
+
+    # triggers the mapping
+    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users?search=Administrator"`
+    # we expect the username (nc internal) to be Administrator
+    STATUS=`echo $RESULT | grep "<element>Administrator</element>" -c`
+    if [ ! $STATUS -eq 1 ] ; then
+        echo "Could not Administrator to admin group, because user was not found:"
+        echo $RESULT
+        return
+    fi
+
+    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users/Administrator/groups"`
+    STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
+    if [ ! $STATUS -eq 1 ] ; then
+        echo "Could not Administrator to admin group, because adding as group member failed:"
+        echo $RESULT
+        return
+    fi
+
 }
 
 nextcloud_urlEncode() {
@@ -204,6 +240,11 @@ nextcloud_ensure_extended_attributes () {
 
 # Enables all Users that fit the filter to access Nextcloud
 nextcloud_modify_users() {
+    if [ $IS_UPDATE = true ] ; then
+        echo "Not attempting to modify users, because NC is already installed and set up."
+        return
+    fi
+
     local JoinUsersFilter="(&(|(&(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=nextcloud-systemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=nextcloudUser)))"
 
     for dn in $(udm users/user list "$@" --filter "$JoinUsersFilter" | sed -ne 's/^DN: //p') ; do

@@ -30,6 +30,7 @@ NC_DB_TYPE="pgsql"
 NC_LOCAL_ADMIN="nc_admin"
 NC_LOCAL_ADMIN_PWD=`pwgen -y 30 1`
 echo "$NC_LOCAL_ADMIN_PWD" > "$NC_ADMIN_PWD_FILE"
+chmod 600 "$NC_ADMIN_PWD_FILE"
 
 cd /var/www/html
 if [ ! -x occ ]; then
