@@ -23,11 +23,13 @@ FROM ubuntu:16.04
 
 COPY resources/nextcloud-11.0.1.tar.bz2 /root/
 COPY resources/ldap-ocs.patch /root/
+COPY resources/entrypoint.sh /usr/sbin/
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
 	apt-get -y update && apt-get install -y \
 	apache2 \
+	cron \
 	curl \
 	libapache2-mod-php7.0 \
 	php7.0 \
@@ -74,5 +76,6 @@ RUN cd /root/ && \
 
 RUN sed -i '/DocumentRoot \/var\/www\/html/a \\tAlias \/nextcloud \/var\/www\/html' /etc/apache2/sites-enabled/000-default.conf
 
-# perhaps unnecessary?
 EXPOSE 80
+
+ENTRYPOINT /usr/sbin/entrypoint.sh

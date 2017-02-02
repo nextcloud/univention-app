@@ -78,12 +78,15 @@ $OCC upgrade
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     eval "`cat \"$NC_UCR_FILE\"`"
 
-    $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"      # FIXME: fmove to joinscript
-    $OCC config:system:set htaccess.RewriteBase --value="/nextcloud/"
+    $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
+    $OCC config:system:set updatechecker --value="false"    # this is handled via UCS AppCenter
+    $OCC config:system:set overwriteprotocol --value="https"
+    $OCC config:system:set overwritewbroot --value="/nextcloud"
+    $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
+    $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
     $OCC maintenance:update:htaccess
     $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
+    echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
+    $OCC background:cron
     $OCC app:enable user_ldap
-    # TODO: Other settings necessary? Proxy?
 fi
-
-
