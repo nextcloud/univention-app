@@ -45,7 +45,7 @@ nextcloud_main() {
     nextcloud_ensure_system_user
     joinscript_register_schema
     nextcloud_ensure_extended_attributes
-    nextcloud_confiugre_ldap_backend
+    nextcloud_configure_ldap_backend
     nextcloud_modify_users
     nextcloud_add_Administrator_to_admin_group
     joinscript_save_current_version
@@ -88,7 +88,7 @@ nextcloud_attempt_memberof_support() {
 }
 
 # configures the LDAP backend at Nextcloud using its OCS API
-nextcloud_confiugre_ldap_backend() {
+nextcloud_configure_ldap_backend() {
     if [ $IS_UPDATE = true ] ; then
         echo "Not attempting to set LDAP configuration, because NC is already installed and set up."
         return
