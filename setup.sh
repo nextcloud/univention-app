@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 NC_PERMDATADIR="/var/lib/univention-appcenter/apps/nextcloud/data"
-NC_DATADIR="$NC_PERMDATADIR/nextcloud/data"
+NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
 
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
@@ -47,7 +47,7 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
     NC_IS_UPGRADE=0
 
     mkdir -p "$NC_DATADIR"
-    chown www-data:www-data -R "$NC_PERMDATADIR/nextcloud"
+    chown www-data:www-data -R "$NC_DATADIR"
 
     $OCC maintenance:install \
         --admin-user    "$NC_LOCAL_ADMIN" \
@@ -65,8 +65,6 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
         echo  "Error while installing Nextcloud"
         exit 1;
     fi
-
-    # chown -R www-data "$NC_DATADIR" # TODO: verify it is not needed, remove it then :)
 fi
 
 $OCC check
