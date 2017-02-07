@@ -47,7 +47,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	pwgen \
 	sudo \
 	lbzip2 \
-	patch
+	patch \
+	unattended-upgrades
 
 RUN a2enmod ssl
 RUN a2enmod headers
