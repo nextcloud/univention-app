@@ -21,6 +21,6 @@
 
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 
-if [ -e "$NC_PERMCONFDIR/config/config.php" ]; then
-    cp "$NC_PERMCONFDIR/config/config.php" "/var/www/html/nextcloud/config/"
+if [ -e "/var/www/html/config/config.php" ]; then
+    cp -Ra "/var/www/html/config" "$NC_PERMCONFDIR/"
 fi
