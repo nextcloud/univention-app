@@ -27,7 +27,7 @@ COPY resources/entrypoint.sh /usr/sbin/
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-	apt-get -y update && apt-get install -y \
+	apt-get -y update && apt-get -y full-upgrade && apt-get install -y \
 	apache2 \
 	cron \
 	curl \
