@@ -31,8 +31,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	apache2 \
 	cron \
 	curl \
-	libapache2-mod-php7.0 \
-	php7.0 \
+	libapache2-mod-php \
+	php \
 	php-curl \
 	php-dompdf \
 	php-gd \
