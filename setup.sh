@@ -24,13 +24,6 @@ NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
 
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
-NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
-
-NC_DB_TYPE="pgsql"
-NC_LOCAL_ADMIN="nc_admin"
-NC_LOCAL_ADMIN_PWD=`pwgen -y 30 1`
-echo "$NC_LOCAL_ADMIN_PWD" > "$NC_ADMIN_PWD_FILE"
-chmod 600 "$NC_ADMIN_PWD_FILE"
 
 cd /var/www/html
 if [ ! -x occ ]; then
@@ -45,6 +38,13 @@ NC_IS_UPGRADE=1
 
 if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
     NC_IS_UPGRADE=0
+
+    NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
+    NC_DB_TYPE="pgsql"
+    NC_LOCAL_ADMIN="nc_admin"
+    NC_LOCAL_ADMIN_PWD=`pwgen -y 30 1`
+    echo "$NC_LOCAL_ADMIN_PWD" > "$NC_ADMIN_PWD_FILE"
+    chmod 600 "$NC_ADMIN_PWD_FILE"
 
     mkdir -p "$NC_DATADIR"
     chown www-data:www-data -R "$NC_DATADIR"
