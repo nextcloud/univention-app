@@ -50,10 +50,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	patch \
 	unattended-upgrades
 
-RUN a2enmod ssl
 RUN a2enmod headers
 RUN a2enmod rewrite
-RUN ln -s /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-enabled
 
 RUN export NC_DATADIR="/var/lib/nextcloud/" && \
 	export NC_DB_NAME="nextcloud" && \
