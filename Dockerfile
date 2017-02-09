@@ -53,14 +53,6 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 RUN a2enmod headers
 RUN a2enmod rewrite
 
-RUN export NC_DATADIR="/var/lib/nextcloud/" && \
-	export NC_DB_NAME="nextcloud" && \
-	export NC_DB_TYPE="pgsql" && \
-	export NC_LOCAL_ADMIN="nc_admin" && \
-	export NC_LOCAL_ADMIN_PWD="pwgen -y 30 1" && \
-	pwgen -y 30 1 > /etc/postgresql-nextcloud.secret && \
-	mkdir "$NC_DATADIR"
-
 RUN cd /root/ && \
 	tar -xf "nextcloud-11.0.1.tar.bz2" && \
 	mv /root/nextcloud/* /var/www/html/ && \
