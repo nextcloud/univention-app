@@ -77,6 +77,13 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     eval "`cat \"$NC_UCR_FILE\"`"
 
     $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
+    NC_TRUSTED_DOMAIN_NO=1
+    for HOST_IP in "$NC_HOST_IPS" ; do
+        HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
+        NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
+    done
+
     $OCC config:system:set updatechecker --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set overwriteprotocol --value="https"
     $OCC config:system:set overwritewbroot --value="/nextcloud"
