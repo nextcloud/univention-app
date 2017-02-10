@@ -39,13 +39,6 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 
     ucr unset `ucr search --key "^nextcloud" | cut -d ":" -f 1 | grep nextcloud | tr '\n' ' '`
 
-    # unsure about this, other applications might nee or rely on it, while a dependency is not registered on
-    # the package
-    MEMBER_OF_NEEDED=`aptitude why univention-ldap-overlay-memberof | grep "^Unable to find a reason" -c`
-    if [ "$MEMBER_OF_NEEDED" -eq 0 ] ; then
-        univention-remove -y univention-ldap-overlay-memberof
-    fi
-
     # this does not remove objectClasses. Is it possible somehow?
 #    for dn in $(udm users/user list "$@" --filter "(objectclass=nextcloudUser)" | sed -ne 's/^DN: //p') ; do
 #        echo "modifying $dn .."

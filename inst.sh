@@ -83,7 +83,6 @@ nextcloud_ensure_system_user() {
 
 # installs the memberof-overlay and saves the state in NC_MEMBER_OF
 nextcloud_attempt_memberof_support() {
-    univention-install univention-ldap-overlay-memberof
     NC_MEMBER_OF=`aptitude search univention-ldap-overlay-memberof | grep "^i" -c`
 }
 

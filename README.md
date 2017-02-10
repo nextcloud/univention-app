@@ -22,7 +22,6 @@ It is a docker based app, not relying on the UCS image.
     * Cron
     * APCu as memcache
 * UCS integration
-    * memberof-overlay is installed
     * user settings added: nextcloud enabled and quota
     * group settings added: nextcloud enabled
     * all users are set to be allowed to login to Nextcloud (login by uid)
@@ -105,7 +104,7 @@ They also can be used for pre-configuration, however there are no dedicated GUI 
 
 #### member of support
 
-``univention-ldap-overlay-memberof`` is attempted to be installed. And also checked whether it really is installed.
+It is checked whether ``univention-ldap-overlay-memberof`` is installed to figure out one configuration flag for the Nextcloud LDAP backend.
 
 #### system user
 
@@ -158,7 +157,6 @@ All further steps are only done, when ``ucs_isServiceUnused`` returns ``true``.
 * Nextcloud custom attributes are removed
 * Nextcloud system user is removed
 * All Nextcloud ucr variables are unset
-* If ``aptitude why univention-ldap-overlay-memberof`` returns no reason, it will be removed (because we attempted to install it). Probably we should drop it or create another marker as additonal check to avoid unintended removal of that package.
 * The Nextcloud PostgreSQL database and user are removed
 
 UCS itself takes care of cleaning up the app folders. That means, that all data is deleted! To avoid this a manual backup has been done before (we can automatize it, but whereto?).
