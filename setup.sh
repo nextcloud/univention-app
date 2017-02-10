@@ -70,7 +70,7 @@ fi
 $OCC check
 $OCC status
 $OCC app:list
-$OCC upgrade
+$OCC upgrade 2>&1>> "/var/log/nextcloud-upgrade_"`date +%y_%m_%d`".log"
 
 # basic Nextcloud configuration
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
