@@ -55,8 +55,7 @@ RUN a2enmod rewrite
 
 RUN cd /root/ && \
 	tar -xf "nextcloud-11.0.1.tar.bz2" && \
-	mv /root/nextcloud/* /var/www/html/ && \
-	mv /root/nextcloud/.htaccess /var/www/html/.htaccess && \
+	mv /root/nextcloud/{.,}* /var/www/html/ 2>/dev/null&& \
 	rm -Rf /root/nextcloud && \
 	rm "nextcloud-11.0.1.tar.bz2" && \
 	cd /var/www/html/ && \
