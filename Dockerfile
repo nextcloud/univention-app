@@ -21,8 +21,7 @@
 
 FROM ubuntu:16.04
 
-COPY resources/nextcloud-11.0.1.tar.bz2 /root/
-COPY resources/ldap-ocs.patch /root/
+COPY resources/nextcloud-11.0.2RC1.tar.bz2 /root/
 COPY resources/entrypoint.sh /usr/sbin/
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
@@ -47,23 +46,20 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	pwgen \
 	sudo \
 	lbzip2 \
-	patch \
 	unattended-upgrades
 
 RUN a2enmod headers
 RUN a2enmod rewrite
 
 RUN cd /root/ && \
-	tar -xf "nextcloud-11.0.1.tar.bz2" && \
+	tar -xf "nextcloud-11.0.2RC1.tar.bz2" && \
 	mv /root/nextcloud/* /var/www/html/ && \
 	mv /root/nextcloud/.htaccess /var/www/html/ && \
 	mv /root/nextcloud/.user.ini /var/www/html/ && \
 	rm -Rf /root/nextcloud && \
-	rm "nextcloud-11.0.1.tar.bz2" && \
+	rm "nextcloud-11.0.2RC1.tar.bz2" && \
 	cd /var/www/html/ && \
 	chmod +x occ && \
-	patch -p1 < /root/ldap-ocs.patch && \
-	rm /root/ldap-ocs.patch && \
 	chown -R www-data /var/www/html
 
 RUN sed -i '/DocumentRoot \/var\/www\/html/a \\tAlias \/nextcloud \/var\/www\/html' /etc/apache2/sites-enabled/000-default.conf
