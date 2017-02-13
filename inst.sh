@@ -36,13 +36,12 @@ HOST="https://${hostname}.${domainname}/nextcloud"
 IS_UPDATE=false
 
 nextcloud_main() {
-    if [ -e $(joinscript_container_file "/etc/nextcloud.secret") ] ; then
+    if [ -e "/var/lib/univention-appcenter/apps/nextcloud/conf/config/config.php" ] ; then
         IS_UPDATE=true
     fi
     ucs_addServiceToLocalhost "${SERVICE}" "$@"
     nextcloud_ensure_ucr
     nextcloud_attempt_memberof_support
-    nextcloud_ensure_system_user
     joinscript_register_schema
     nextcloud_ensure_extended_attributes
     nextcloud_configure_ldap_backend
@@ -74,13 +73,6 @@ nextcloud_ensure_ucr() {
     eval "$(ucr shell)"
 }
 
-# adds a Nextcloud system user, if it is not already present
-nextcloud_ensure_system_user() {
-    if [ ! $IS_UPDATE = true ] ; then
-        joinscript_add_simple_app_system_user "$@"
-    fi
-}
-
 # installs the memberof-overlay and saves the state in NC_MEMBER_OF
 nextcloud_attempt_memberof_support() {
     NC_MEMBER_OF=`aptitude search univention-ldap-overlay-memberof | grep "^i" -c`
@@ -92,12 +84,12 @@ nextcloud_configure_ldap_backend() {
         echo "Not attempting to set LDAP configuration, because NC is already installed and set up."
         return
     fi
-    local NC_LDAP_PWD=`cat $(joinscript_container_file "/etc/nextcloud.secret")`
+    local NC_LDAP_PWD=`cat "/etc/machine.secret"`
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
 
     data="configData[ldapHost]="`nextcloud_urlEncode "$ldap_server_name"`
     data+="&configData[ldapPort]="`nextcloud_urlEncode "$ldap_server_port"`
-    data+="&configData[ldapAgentName]="`nextcloud_urlEncode "uid=nextcloud-systemuser,cn=users,$ldap_base"`
+    data+="&configData[ldapAgentName]="`nextcloud_urlEncode "$ldap_hostdn"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_PWD"`
     data+="&configData[ldapBase]="`nextcloud_urlEncode "$nextcloud_ldap_base"`
     data+="&configData[ldapBaseUsers]="`nextcloud_urlEncode "$nextcloud_ldap_baseUsers"`

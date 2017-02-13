@@ -106,10 +106,6 @@ They also can be used for pre-configuration, however there are no dedicated GUI 
 
 It is checked whether ``univention-ldap-overlay-memberof`` is installed to figure out one configuration flag for the Nextcloud LDAP backend.
 
-#### system user
-
-Unless on update, a system user is created by utilizing a ucs bash method.
-
 #### register LDAP schema
 
 With another single UCS bash method invocation.
