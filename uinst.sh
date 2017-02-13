@@ -34,9 +34,6 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
     univention-directory-manager container/cn remove "$@" \
         --dn "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" || die
 
-    univention-directory-manager users/user remove "$@" \
-        --dn "uid=nextcloud-systemuser,cn=users,$ldap_base" || die
-
     ucr unset `ucr search --key "^nextcloud" | cut -d ":" -f 1 | grep nextcloud | tr '\n' ' '`
 
 fi
