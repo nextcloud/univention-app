@@ -152,12 +152,13 @@ The uninstall script makes sure that UCS is left clean from any Nextcloud tracks
 
 The Nextcloud service is removed from the localhost (UCS bash method invocation).
 
-All further steps are only done, when ``ucs_isServiceUnused`` returns ``true``.
+Following steps are only done, when ``ucs_isServiceUnused`` returns ``true``.
 
 * Nextcloud custom attributes are removed
 * Nextcloud system user is removed
 * All Nextcloud ucr variables are unset
-* The Nextcloud PostgreSQL database and user are removed
+
+The Nextcloud PostgreSQL database and user are removed unconditionally, because the database resides on the docker host.
 
 UCS itself takes care of cleaning up the app folders. That means, that all data is deleted! To avoid this a manual backup has been done before (we can automatize it, but whereto?).
 

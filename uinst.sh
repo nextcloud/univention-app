@@ -39,20 +39,11 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 
     ucr unset `ucr search --key "^nextcloud" | cut -d ":" -f 1 | grep nextcloud | tr '\n' ' '`
 
-    # this does not remove objectClasses. Is it possible somehow?
-#    for dn in $(udm users/user list "$@" --filter "(objectclass=nextcloudUser)" | sed -ne 's/^DN: //p') ; do
-#        echo "modifying $dn .."
-#        udm users/user modify "$@" --dn "$dn" \
-#            --remove nextcloudEnabled \
-#            --remove nextcloudQuota \
-#            --remove objectClass=nextcloudUser
-#    done
-
-    # Remove the database  (apps permanent data and config folder are removed automatically)
-    su -c "psql -c \"drop database nextcloud\"" - postgres && \
-        su -c "dropuser \"nextcloud\"" - postgres || die
-
 fi
+
+# Remove the database  (apps permanent data and config folder are removed automatically)
+su -c "psql -c \"drop database nextcloud\"" - postgres && \
+    su -c "dropuser \"nextcloud\"" - postgres || die
 
 joinscript_remove_script_from_status_file nextcloud
 exit 0
