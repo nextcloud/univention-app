@@ -36,7 +36,7 @@ HOST="https://${hostname}.${domainname}/nextcloud"
 IS_UPDATE=false
 
 nextcloud_main() {
-    if [ -e "/var/lib/univention-appcenter/apps/nextcloud/conf/config/config.php" ] ; then
+    if [ -e "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done" ] ; then
         IS_UPDATE=true
     fi
     ucs_addServiceToLocalhost "${SERVICE}" "$@"
@@ -47,6 +47,7 @@ nextcloud_main() {
     nextcloud_configure_ldap_backend
     nextcloud_modify_users
     nextcloud_add_Administrator_to_admin_group
+    nextcloud_mark_initial_conig_done
     joinscript_save_current_version
     exit 0
 }
@@ -264,6 +265,10 @@ nextcloud_modify_users() {
             --set nextcloudEnabled="$nextcloud_ucs_userEnabled" \
             --set nextcloudQuota="$nextcloud_ucs_userQuota"
     done
+}
+
+nextcloud_mark_initial_conig_done() {
+    touch "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done"
 }
 
 nextcloud_main
