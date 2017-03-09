@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION=1
+VERSION=2
 SERVICE="Nextcloud"
 
 . /usr/share/univention-join/joinscripthelper.lib
@@ -34,18 +34,24 @@ NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
 NC_MEMBER_OF=0
 HOST="https://${hostname}.${domainname}/nextcloud"
 IS_UPDATE=false
+NC_LDAP_BIND_DN="$appcenter_apps_nextcloud_hostdn"
+NC_LDAP_BIND_PW_FILE="$(joinscript_container_file /etc/machine.secret)"
+NC_LDAP_BIND_PW="$(< $NC_LDAP_BIND_PW_FILE)"
 
 nextcloud_main() {
     if [ -e "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done" ] ; then
         IS_UPDATE=true
     fi
     ucs_addServiceToLocalhost "${SERVICE}" "$@"
+    if [ "$JS_LAST_EXECUTED_VERSION" = 1 ]; then
+        nextcloud_update_ldap_bind_account
+    fi
     nextcloud_ensure_ucr
     nextcloud_attempt_memberof_support
     joinscript_register_schema
     nextcloud_ensure_extended_attributes
     nextcloud_configure_ldap_backend
-    nextcloud_modify_users
+    nextcloud_modify_users "$@"
     nextcloud_add_Administrator_to_admin_group
     nextcloud_mark_initial_conig_done
     joinscript_save_current_version
@@ -79,19 +85,35 @@ nextcloud_attempt_memberof_support() {
     NC_MEMBER_OF=`aptitude search univention-ldap-overlay-memberof | grep "^i" -c`
 }
 
+# update ldap bind account to nextcloud user
+nextcloud_update_ldap_bind_account() {
+    local data
+    local admin_password=`cat "$NC_ADMIN_PWD_FILE"`
+    # TODO, how to get the current config ID?
+    local configid="s01"
+    data="configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
+    data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
+    curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" \
+        -H "OCS-APIREQUEST: true" -u "nc_admin:$admin_password" \
+        "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$configid" > /dev/null
+    # TODO, or better directly update the database?
+    # UPDATE oc_appconfig set configvalue = 'base64 password' where configkey = 's01ldap_agent_password';
+
+
+}
+
 # configures the LDAP backend at Nextcloud using its OCS API
 nextcloud_configure_ldap_backend() {
     if [ $IS_UPDATE = true ] ; then
         echo "Not attempting to set LDAP configuration, because NC is already installed and set up."
         return
     fi
-    local NC_LDAP_PWD=`cat "/etc/machine.secret"`
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
 
     data="configData[ldapHost]="`nextcloud_urlEncode "$ldap_server_name"`
     data+="&configData[ldapPort]="`nextcloud_urlEncode "$ldap_server_port"`
-    data+="&configData[ldapAgentName]="`nextcloud_urlEncode "$ldap_hostdn"`
-    data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_PWD"`
+    data+="&configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
+    data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
     data+="&configData[ldapBase]="`nextcloud_urlEncode "$nextcloud_ldap_base"`
     data+="&configData[ldapBaseUsers]="`nextcloud_urlEncode "$nextcloud_ldap_baseUsers"`
     data+="&configData[ldapBaseGroups]="`nextcloud_urlEncode "$nextcloud_ldap_baseGroups"`
