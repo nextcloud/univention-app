@@ -58,8 +58,6 @@ nextcloud_main() {
     exit 0
 }
 
-# moar settings: quota,homeAttr,groupSearchAttr
-
 # ensures that UCR variables are set. They can be used to pre-set Nextcloud settings before install
 nextcloud_ensure_ucr() {
     ucr set nextcloud/ucs/modifyUsersFilter?"(&(|(&(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=nextcloud-systemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=nextcloudUser)))" \
@@ -89,17 +87,15 @@ nextcloud_attempt_memberof_support() {
 nextcloud_update_ldap_bind_account() {
     local data
     local admin_password=`cat "$NC_ADMIN_PWD_FILE"`
-    # TODO, how to get the current config ID?
-    local configid="s01"
+    local configid="s01" # reasonable fall back. in v1 of the join script the configid was not saved.
+    if [ -e "$NC_PERMCONFDIR/ldap-config-id" ]; then
+        configid=`cat "$NC_PERMCONFDIR/ldap-config-id"`
+    fi
     data="configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
     curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" \
         -H "OCS-APIREQUEST: true" -u "nc_admin:$admin_password" \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$configid" > /dev/null
-    # TODO, or better directly update the database?
-    # UPDATE oc_appconfig set configvalue = 'base64 password' where configkey = 's01ldap_agent_password';
-
-
 }
 
 # configures the LDAP backend at Nextcloud using its OCS API
@@ -147,6 +143,7 @@ nextcloud_configure_ldap_backend() {
         die "Could not create LDAP Config at Nextcloud"
     fi
     CONFIGID=`echo $RESULT | grep -oP '(?<=<configID>).*?(?=</configID>)'`
+    echo "$CONFIGID" > "$NC_PERMCONFDIR/ldap-config-id"
     curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" > /dev/null
 }
 
