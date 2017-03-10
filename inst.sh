@@ -48,8 +48,8 @@ nextcloud_main() {
     fi
     nextcloud_ensure_ucr
     nextcloud_attempt_memberof_support
-    joinscript_register_schema
-    nextcloud_ensure_extended_attributes
+    joinscript_register_schema "$@"
+    nextcloud_ensure_extended_attributes "$@"
     nextcloud_configure_ldap_backend
     nextcloud_modify_users "$@"
     nextcloud_add_Administrator_to_admin_group
@@ -290,4 +290,4 @@ nextcloud_mark_initial_conig_done() {
     touch "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done"
 }
 
-nextcloud_main
+nextcloud_main "$@"
