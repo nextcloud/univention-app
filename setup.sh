@@ -94,4 +94,5 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
     $OCC background:cron
     $OCC app:enable user_ldap
+    $OCC app:disable updatenotification
 fi
