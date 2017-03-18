@@ -21,7 +21,7 @@
 
 FROM ubuntu:16.04
 
-COPY resources/nextcloud-11.0.2RC1.tar.bz2 /root/
+COPY resources/nextcloud-11.0.2.tar.bz2 /root/nextcloud.tar.bz2
 COPY resources/entrypoint.sh /usr/sbin/
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
@@ -53,12 +53,12 @@ RUN a2enmod headers
 RUN a2enmod rewrite
 
 RUN cd /root/ && \
-	tar -xf "nextcloud-11.0.2RC1.tar.bz2" && \
+	tar -xf "nextcloud.tar.bz2" && \
 	mv /root/nextcloud/* /var/www/html/ && \
 	mv /root/nextcloud/.htaccess /var/www/html/ && \
 	mv /root/nextcloud/.user.ini /var/www/html/ && \
 	rm -Rf /root/nextcloud && \
-	rm "nextcloud-11.0.2RC1.tar.bz2" && \
+	rm "nextcloud.tar.bz2" && \
 	cd /var/www/html/ && \
 	chmod +x occ && \
 	chown -R www-data /var/www/html
