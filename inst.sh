@@ -93,7 +93,7 @@ nextcloud_update_ldap_bind_account() {
     fi
     data="configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
-    curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" \
+    curl -X PUT -d "$data" \
         -H "OCS-APIREQUEST: true" -u "nc_admin:$admin_password" \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$configid" > /dev/null
 }
@@ -137,14 +137,14 @@ nextcloud_configure_ldap_backend() {
     data+="&configData[turnOnPasswordChange]=0"
     data+="&configData[ldapExperiencedAdmin]=1"
 
-    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X POST -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"`
+    RESULT=`curl -X POST -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"`
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
     if [ ! $STATUS -eq 1 ] ; then
         die "Could not create LDAP Config at Nextcloud"
     fi
     CONFIGID=`echo $RESULT | grep -oP '(?<=<configID>).*?(?=</configID>)'`
     echo "$CONFIGID" > "$NC_PERMCONFDIR/ldap-config-id"
-    curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" > /dev/null
+    curl -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" > /dev/null
 }
 
 nextcloud_add_Administrator_to_admin_group() {
@@ -156,7 +156,7 @@ nextcloud_add_Administrator_to_admin_group() {
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
 
     # triggers the mapping
-    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users?search=Administrator"`
+    RESULT=`curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users?search=Administrator"`
     # we expect the username (nc internal) to be Administrator
     STATUS=`echo $RESULT | grep "<element>Administrator</element>" -c`
     if [ ! $STATUS -eq 1 ] ; then
@@ -165,7 +165,7 @@ nextcloud_add_Administrator_to_admin_group() {
         return
     fi
 
-    RESULT=`curl --cacert /etc/univention/ssl/ucsCA/CAcert.pem -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users/Administrator/groups"`
+    RESULT=`curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users/Administrator/groups"`
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not Administrator to admin group, because adding as group member failed:"
