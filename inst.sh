@@ -212,7 +212,7 @@ nextcloud_ensure_extended_attributes () {
     univention-directory-manager settings/extended_attribute modify "$@" \
         --dn "cn=nextcloudUserEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
         --set tabAdvanced='1' \
-        --set default="1"
+        --set default="1" || die
 
     univention-directory-manager settings/extended_attribute create "$@" \
         --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="users/user" \
@@ -239,8 +239,8 @@ nextcloud_ensure_extended_attributes () {
         --set doNotSearch='0' \
         --set hook='None' || \
     univention-directory-manager settings/extended_attribute modify "$@" \
-		--dn "cn=nextcloudUserQuota,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1'
+        --dn "cn=nextcloudUserQuota,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
+        --set tabAdvanced='1' || die
 
     univention-directory-manager settings/extended_attribute create "$@" \
         --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="groups/group" \
@@ -267,8 +267,8 @@ nextcloud_ensure_extended_attributes () {
         --set doNotSearch='0' \
         --set hook='None' || \
     univention-directory-manager settings/extended_attribute modify "$@" \
-		--dn "cn=nextcloudGroupEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1'
+        --dn "cn=nextcloudGroupEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
+        --set tabAdvanced='1' || die
 }
 
 # Enables all Users that fit the filter to access Nextcloud
@@ -287,7 +287,7 @@ nextcloud_modify_users() {
 }
 
 nextcloud_mark_initial_conig_done() {
-    touch "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done"
+    touch "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done" || die
 }
 
 nextcloud_main "$@"
