@@ -67,10 +67,11 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
     fi
 fi
 
+UPGRADE_LOGFILE="/var/log/nextcloud-upgrade_"`date +%y_%m_%d`".log"
 $OCC check
 $OCC status
 $OCC app:list
-$OCC upgrade 2>&1>> "/var/log/nextcloud-upgrade_"`date +%y_%m_%d`".log"
+$OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
 
 # basic Nextcloud configuration
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
@@ -78,7 +79,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
 
     $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
     NC_TRUSTED_DOMAIN_NO=1
-    for HOST_IP in "$NC_HOST_IPS" ; do
+    for HOST_IP in "${NC_HOST_IPS[@]}" ; do
         HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
         NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
@@ -95,4 +96,9 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
+else
+    DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled 3rd-party app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
+    for APPID in "${DISABLED_APPS[@]}" ; do
+        $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
+    done
 fi
