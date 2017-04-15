@@ -21,7 +21,7 @@
 
 FROM ubuntu:16.04
 
-COPY resources/nextcloud-11.0.2.tar.bz2 /root/nextcloud.tar.bz2
+COPY resources/nextcloud-11.0.3.tar.bz2 /root/nextcloud.tar.bz2
 COPY resources/entrypoint.sh /usr/sbin/
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
