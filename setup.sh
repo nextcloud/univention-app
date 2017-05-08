@@ -92,7 +92,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
     $OCC maintenance:update:htaccess
     $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
-    echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
@@ -102,3 +101,5 @@ else
         $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
     done
 fi
+
+echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
