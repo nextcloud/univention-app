@@ -144,7 +144,9 @@ nextcloud_configure_ldap_backend() {
     fi
     CONFIGID=`echo $RESULT | grep -oP '(?<=<configID>).*?(?=</configID>)'`
     echo "$CONFIGID" > "$NC_PERMCONFDIR/ldap-config-id"
-    curl -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" > /dev/null
+    curl -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
+        "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" \
+        > /dev/null | die "Configuring LDAP Backend failed"
 }
 
 nextcloud_add_Administrator_to_admin_group() {
@@ -162,7 +164,7 @@ nextcloud_add_Administrator_to_admin_group() {
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not Administrator to admin group, because user was not found:"
         echo $RESULT
-        return
+        die
     fi
 
     RESULT=`curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$HOST/ocs/v2.php/cloud/users/Administrator/groups"`
@@ -170,7 +172,7 @@ nextcloud_add_Administrator_to_admin_group() {
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not Administrator to admin group, because adding as group member failed:"
         echo $RESULT
-        return
+        die
     fi
 }
 
