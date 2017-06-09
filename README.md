@@ -126,6 +126,8 @@ Most important:
 
 * The user search attributes default to ``uid;givenName;sn;employeeNumber;mailPrimaryAddress`` and the group search attributes to ``cn``.
 
+* The search base for users defaults to ``cn=users,LDAP_BASE`` and for groups to ``cn=groups,LDAP_BASE``. This means only users or groups underneath those default subtrees are considered. The search base can be changed before the installation by executing ``ucr set nextcloud/ldap/baseUsers="your-ldap-subtree"`` and ``ucr set nextcloud/ldap/baseGroups="your-ldap-subtree"`` on the UCS host or after the installation in the Nextcloud settings via Admin -> LDAP / AD integration -> Advanced -> Directory Settings.
+
 #### modify users
 
 Unless on update or empty ``$nextcloud_ucs_modifyUsersFilter`` all Users resulting by this filter¹ are modified. ``nextcloudEnabled`` is set to ``$nextcloud_ucs_userEnabled`` (defaults to 1) and ``nextcloudQuota`` is set to ``$nextcloud_ucs_userQuota``(default to empty, i.e. unlimited).
