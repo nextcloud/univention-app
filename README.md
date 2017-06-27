@@ -187,3 +187,14 @@ In the Univention Provider Portal, open the Hamburger menu of the app and click 
 Click the "save" icon and and the app is available in the test app center.
 
 
+## Deploying to App Portal
+
+### Prerequisites
+
+First, having an account and access to the UCS App Provider portal.
+
+Second, follow http://wiki.univention.de/index.php?title=Provider_Portal/Apps#Prerequisites
+
+### Create a new version
+
+$ make add-version app_ver='11.0.3-0' app_newver='11.0.3-90'
