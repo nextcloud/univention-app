@@ -198,3 +198,11 @@ Second, follow http://wiki.univention.de/index.php?title=Provider_Portal/Apps#Pr
 ### Create a new version
 
 $ make add-version app_ver='11.0.3-0' app_newver='11.0.3-90'
+
+### Upload files
+
+$ make push-files
+
+uploads all files, except ``i18n/*/Short Description.html`` and ``i18n/*/Long Description.html``, Screenshots and Videos. These text can only be edited manually in the app provider portal. Also logos are not being uploaded.
+
+Uploads go against the current Nextcloud app version as configured in the Makefile.

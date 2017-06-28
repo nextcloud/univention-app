@@ -18,19 +18,36 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Goal: upload all things and publish.
-# 1. New app_version   #make new app_version
-# 2. Push          #make app_ver=11.0.4
 # 3. Publish       #make publish
 
 app_name=nextcloud
-ucs_app_version=4.1
+app_version=11.0.3-90
+ucs_version=4.1
 
+.PHONY: all
 all:
 	echo $(app_ver)
 	if [ -z ${app_ver} ] ; then echo "no app_version specified"; exit 13; fi
 
+.PHONY: add-version
 add-version:
 	if [ -z ${app_ver} ] ; then echo "no original app_version specified"; exit 13; fi
 	if [ -z ${app_newver} ] ; then echo "no target app_version specified"; exit 13; fi
-	univention-appcenter-control new-version "$(app_name)=$(app_ver)" "$(ucs_app_version)/$(app_name)=$(app_newver)"
+	univention-appcenter-control new-version "$(app_name)=$(app_ver)" "$(ucs_version)/$(app_name)=$(app_newver)"
 
+.PHONY: push-files
+push-files:
+	univention-appcenter-control upload --noninteractive nextcloud=$(app_version) \
+		restore_data_before_setup \
+		setup \
+		restore_data_after_setup \
+		preinst \
+		inst \
+		store_data \
+		uinst \
+		update_app_version \
+		nextcloud.schema \
+		i18n/en/README_INSTALL_EN \
+		i18n/de/README_INSTALL_DE \
+		i18n/en/README_UNINSTALL_EN \
+		i18n/de/README_UNINSTALL_DE
