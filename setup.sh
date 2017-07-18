@@ -82,6 +82,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set overwritewbroot --value="/nextcloud"
     $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
     $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
+    $OCC config:system:set auth.bruteforce.protection.enabled --value="false"
     $OCC maintenance:update:htaccess
     $OCC background:cron
     $OCC app:enable user_ldap
