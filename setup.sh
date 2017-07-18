@@ -74,32 +74,38 @@ $OCC app:list
 $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
 
 # basic Nextcloud configuration
+eval "`cat \"$NC_UCR_FILE\"`"
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
-    eval "`cat \"$NC_UCR_FILE\"`"
-
-    $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
-    NC_TRUSTED_DOMAIN_NO=1
-    for HOST_IP in "${NC_HOST_IPS[@]}" ; do
-        HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-        $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
-        NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
-    done
-
     $OCC config:system:set updatechecker --value="false"    # this is handled via UCS AppCenter
+    $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
     $OCC config:system:set overwriteprotocol --value="https"
     $OCC config:system:set overwritewbroot --value="/nextcloud"
     $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
     $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
     $OCC maintenance:update:htaccess
-    $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
 else
+    # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled 3rd-party app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
     for APPID in "${DISABLED_APPS[@]}" ; do
         $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
     done
+
+    # clean IP-related settings
+    $OCC config:system:delete trusted_domains
+    $OCC config:system:delete trusted_proxies
 fi
+
+# set IP-related settings (refreshed on update)
+$OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
+$OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
+NC_TRUSTED_DOMAIN_NO=1
+for HOST_IP in "${NC_HOST_IPS[@]}" ; do
+    HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
+    NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
+done
 
 echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud

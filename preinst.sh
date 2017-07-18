@@ -28,6 +28,7 @@ mkdir -p "$NC_PERMCONFDIR"
 cat >"$NC_UCR_FILE" <<EOL
 export NC_UCR_DOMAIN="`ucr get hostname`"."`ucr get domainname`"
 export NC_HOST_IPS="`ucr dump | grep interfaces | grep address | cut -d ":" -f2`"
+export NC_TRUSTED_PROXY_IP="`ucr get docker/daemon/default/opts/bip | cut -d "/" -f 1`"
 EOL
 
 chmod +x "$NC_UCR_FILE"
