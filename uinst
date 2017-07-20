@@ -40,7 +40,8 @@ fi
 
 # Remove the database  (apps permanent data and config folder are removed automatically)
 su -c "psql -c \"drop database nextcloud\"" - postgres && \
-    su -c "dropuser \"nextcloud\"" - postgres || die
+    su -c "dropuser \"nextcloud\"" - postgres && \
+    rm /etc/postgresql-nextcloud.secret || die
 
 joinscript_remove_script_from_status_file nextcloud
 exit 0
