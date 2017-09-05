@@ -26,7 +26,7 @@ NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 mkdir -p "$NC_PERMCONFDIR"
 
 APPLIANCE=false
-if [ "`ucr get umc/web/appliance/idxx`" = "nextcloud" ]; then
+if [ "`ucr get umc/web/appliance/id`" = "nextcloud" ]; then
     APPLIANCE=true
 fi
 
