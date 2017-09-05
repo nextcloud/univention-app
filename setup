@@ -86,6 +86,43 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
+
+    if [ $NC_APPLIANCE = true ]; then
+        # Heads up: in Nc 13 we will have occ app:install <appid>
+        EXTRA_APP_URLS=(\
+            https://download.nextcloud.com/server/apps/zenodo-0.9.3.tar.gz \
+            https://download.nextcloud.com/server/apps/dashboard-4.0.5.tar.gz \
+            https://github.com/nextcloud/circles/releases/download/v0.12.4/circles-0.12.4.tar.gz \
+            https://download.nextcloud.com/server/apps/groupfolders-1.1.0.tar.gz \
+            https://github.com/nextcloud/announcementcenter/releases/download/v3.1.0/announcementcenter-3.1.0.tar.gz \
+            https://github.com/nextcloud/admin_notifications/releases/download/v1.0.0/admin_notifications-1.0.0.tar.gz \
+            https://github.com/nextcloud/quota_warning/releases/download/v1.1.0/quota_warning-1.1.0.tar.gz \
+            https://download.nextcloud.com/server/apps/orcid-0.9.1.tar.gz \
+            https://download.nextcloud.com/server/apps/user_saml-1.3.2.tar.gz \
+        )
+
+        cd apps
+        for APP_URL in "${EXTRA_APP_URLS[@]}" ; do
+            wget "$APP_URL" -O app.tar.gz && \
+            tar -xf app.tar.gz
+            rm app.tar.gz
+        done
+        cd ..
+
+        # enable extra apps
+        $OCC app:enable zenodo
+        $OCC app:enable dashboard
+        $OCC app:enable cirlces
+        $OCC app:enable groupfolders
+        $OCC app:enable announcementcenter
+        $OCC app:enable admin_notifications
+        $OCC app:enable quota_warning
+        $OCC app:enable orcid
+        $OCC app:enable user_saml
+        # ensure they are the latest version
+        $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
+    fi
+
 else
     # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled 3rd-party app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
