@@ -25,10 +25,17 @@ NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 # the folder is not yet created, as expected
 mkdir -p "$NC_PERMCONFDIR"
 
+APPLIANCE=false
+if [ "`ucr get umc/web/appliance/idxx`" = "nextcloud" ]; then
+    APPLIANCE=true
+fi
+
+
 cat >"$NC_UCR_FILE" <<EOL
 export NC_UCR_DOMAIN="`ucr get hostname`"."`ucr get domainname`"
 export NC_HOST_IPS="`ucr dump | grep interfaces | grep address | cut -d ":" -f2`"
 export NC_TRUSTED_PROXY_IP="`ucr get docker/daemon/default/opts/bip | cut -d "/" -f 1`"
+export NC_APPLIANCE=$APPLIANCE
 EOL
 
 chmod +x "$NC_UCR_FILE"
