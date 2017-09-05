@@ -102,6 +102,7 @@ fi
 $OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
 $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
 NC_TRUSTED_DOMAIN_NO=1
+NC_HOST_IPS=($NC_HOST_IPS)
 for HOST_IP in "${NC_HOST_IPS[@]}" ; do
     HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
     $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
