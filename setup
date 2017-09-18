@@ -112,7 +112,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         # enable extra apps
         $OCC app:enable zenodo
         $OCC app:enable dashboard
-        $OCC app:enable cirlces
+        $OCC app:enable circles
         $OCC app:enable groupfolders
         $OCC app:enable announcementcenter
         $OCC app:enable admin_notifications
