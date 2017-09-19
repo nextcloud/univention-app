@@ -87,7 +87,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
 
-    if [ $NC_APPLIANCE = true ]; then
+    if [ "$NC_APPLIANCE" = true ]; then
         # Heads up: in Nc 13 we will have occ app:install <appid>
         EXTRA_APP_URLS=(\
             https://download.nextcloud.com/server/apps/zenodo-0.9.3.tar.gz \
@@ -145,5 +145,16 @@ for HOST_IP in "${NC_HOST_IPS[@]}" ; do
     $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
     NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
 done
+
+# env var is set from the dockerfile
+if [ "$NC_IS_PATCHED" = true ]; then
+    $OCC config:system:set integrity.check.disabled --value="true" --type=boolean
+    # (un)comment and adjust following line depending on the use case,
+    # otherwise a warning is shown, still
+    $OCC integrity:check-app user_ldap
+
+    # integrity checks are done once on upgrade case, thus we can directly remove the flag again
+    $OCC config:system:delete integrity.check.disabled
+fi
 
 echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
