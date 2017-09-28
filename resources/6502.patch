@@ -1,0 +1,128 @@
+From de8626694f0dffdc50f78bb9ae7aaf0168e8e43d Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Mon, 11 Sep 2017 12:10:32 +0200
+Subject: [PATCH 1/5] fix limit-flaw in search on paged results
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ apps/user_ldap/lib/Access.php                            | 16 ++++++++--------
+ .../tests/Integration/Lib/IntegrationTestPaging.php      | 13 +++++++++----
+ 2 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/apps/user_ldap/lib/Access.php b/apps/user_ldap/lib/Access.php
+index 69e1f3c52f4..e036f6ccb8b 100644
+--- a/apps/user_ldap/lib/Access.php
++++ b/apps/user_ldap/lib/Access.php
+@@ -1149,9 +1149,9 @@ private function countEntriesInSearchResults($searchResults) {
+ 	 * @return array with the search result
+ 	 */
+ 	public function search($filter, $base, $attr = null, $limit = null, $offset = null, $skipHandling = false) {
+-		if($limit <= 0) {
+-			//otherwise search will fail
+-			$limit = null;
++		$limitPerPage = intval($this->connection->ldapPagingSize);
++		if(!is_null($limit) && $limit < $limitPerPage && $limit > 0) {
++			$limitPerPage = $limit;
+ 		}
+ 
+ 		/* ++ Fixing RHDS searches with pages with zero results ++
+@@ -1163,7 +1163,7 @@ public function search($filter, $base, $attr = null, $limit = null, $offset = nu
+ 		$findings = array();
+ 		$savedoffset = $offset;
+ 		do {
+-			$search = $this->executeSearch($filter, $base, $attr, $limit, $offset);
++			$search = $this->executeSearch($filter, $base, $attr, $limitPerPage, $offset);
+ 			if($search === false) {
+ 				return array();
+ 			}
+@@ -1174,7 +1174,7 @@ public function search($filter, $base, $attr = null, $limit = null, $offset = nu
+ 				//i.e. result do not need to be fetched, we just need the cookie
+ 				//thus pass 1 or any other value as $iFoundItems because it is not
+ 				//used
+-				$this->processPagedSearchStatus($sr, $filter, $base, 1, $limit,
++				$this->processPagedSearchStatus($sr, $filter, $base, 1, $limitPerPage,
+ 								$offset, $pagedSearchOK,
+ 								$skipHandling);
+ 				return array();
+@@ -1185,10 +1185,10 @@ public function search($filter, $base, $attr = null, $limit = null, $offset = nu
+ 			}
+ 
+ 			$continue = $this->processPagedSearchStatus($sr, $filter, $base, $findings['count'],
+-								$limit, $offset, $pagedSearchOK,
++				$limitPerPage, $offset, $pagedSearchOK,
+ 										$skipHandling);
+-			$offset += $limit;
+-		} while ($continue && $pagedSearchOK && $findings['count'] < $limit);
++			$offset += $limitPerPage;
++		} while ($continue && $pagedSearchOK && ($limit === null || $findings['count'] < $limit));
+ 		// reseting offset
+ 		$offset = $savedoffset;
+ 
+From 30bf1c158d4b1ca3c2a03097bf1b109e23b5325a Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Mon, 11 Sep 2017 12:11:25 +0200
+Subject: [PATCH 2/5] replace hard-coded attribute with the corresponding
+ settings option
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ apps/user_ldap/lib/Group_LDAP.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/apps/user_ldap/lib/Group_LDAP.php b/apps/user_ldap/lib/Group_LDAP.php
+index 60ce664684a..3667a2d09f7 100644
+--- a/apps/user_ldap/lib/Group_LDAP.php
++++ b/apps/user_ldap/lib/Group_LDAP.php
+@@ -333,7 +333,7 @@ public function getGroupGidNumber($dn) {
+ 	public function getUserGidNumber($dn) {
+ 		$gidNumber = false;
+ 		if($this->access->connection->hasGidNumber) {
+-			$gidNumber = $this->getEntryGidNumber($dn, 'gidNumber');
++			$gidNumber = $this->getEntryGidNumber($dn, $this->access->connection->ldapGidNumber);
+ 			if($gidNumber === false) {
+ 				$this->access->connection->hasGidNumber = false;
+ 			}
+
+From 9fb8f1fcd323fe90d7c6008be93b7ead7d8181b5 Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Mon, 11 Sep 2017 15:30:44 +0200
+Subject: [PATCH 4/5] fix counting found results  in search op
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ apps/user_ldap/lib/Access.php | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/apps/user_ldap/lib/Access.php b/apps/user_ldap/lib/Access.php
+index e036f6ccb8b..b6674cf0332 100644
+--- a/apps/user_ldap/lib/Access.php
++++ b/apps/user_ldap/lib/Access.php
+@@ -1030,7 +1030,7 @@ private function executeSearch($filter, $base, &$attr = null, $limit = null, $of
+ 	 * @param array $sr the array containing the LDAP search resources
+ 	 * @param string $filter the LDAP filter for the search
+ 	 * @param array $base an array containing the LDAP subtree(s) that shall be searched
+-	 * @param int $iFoundItems number of results in the search operation
++	 * @param int $iFoundItems number of results in the single search operation
+ 	 * @param int $limit maximum results to be counted
+ 	 * @param int $offset a starting point
+ 	 * @param bool $pagedSearchOK whether a paged search has been executed
+@@ -1180,15 +1180,18 @@ public function search($filter, $base, $attr = null, $limit = null, $offset = nu
+ 				return array();
+ 			}
+ 
++			$iFoundItems = 0;
+ 			foreach($sr as $res) {
+ 				$findings = array_merge($findings, $this->invokeLDAPMethod('getEntries', $cr, $res));
++				$iFoundItems = max($iFoundItems, $findings['count']);
++				unset($findings['count']);
+ 			}
+ 
+-			$continue = $this->processPagedSearchStatus($sr, $filter, $base, $findings['count'],
++			$continue = $this->processPagedSearchStatus($sr, $filter, $base, $iFoundItems,
+ 				$limitPerPage, $offset, $pagedSearchOK,
+ 										$skipHandling);
+ 			$offset += $limitPerPage;
+-		} while ($continue && $pagedSearchOK && ($limit === null || $findings['count'] < $limit));
++		} while ($continue && $pagedSearchOK && ($limit === null || count($findings) < $limit));
+ 		// reseting offset
+ 		$offset = $savedoffset;
