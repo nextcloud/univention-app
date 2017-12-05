@@ -21,13 +21,12 @@
 
 FROM ubuntu:16.04
 
-COPY resources/nextcloud-12.0.3.tar.bz2 /root/nextcloud.tar.bz2
-COPY resources/6502.patch /root/6502.patch
+COPY resources/nextcloud-12.0.4.tar.bz2 /root/nextcloud.tar.bz2
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.0/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.0/cli/conf.d/
 
-ENV NC_IS_PATCHED true
+ENV NC_IS_PATCHED false
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -70,9 +69,9 @@ RUN cd /root/ && \
 	chown -R www-data /var/www/html
 
 # uncomment and adjust following block if a patch needs to be applied
-RUN cd /var/www/html/ && \
-    patch -p1 -t < /root/6502.patch && \
-    rm /root/6502.patch
+#RUN cd /var/www/html/ && \
+#    patch -p1 -t < /root/6502.patch && \
+#    rm /root/6502.patch
 
 RUN sed -i '/DocumentRoot \/var\/www\/html/a \\tAlias \/nextcloud \/var\/www\/html' /etc/apache2/sites-enabled/000-default.conf
 
