@@ -72,6 +72,7 @@ nextcloud_ensure_ucr() {
     ucr set nextcloud/ucs/modifyUsersFilter?"(&(|(&(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=nextcloud-systemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=nextcloudUser)))" \
             nextcloud/ucs/userEnabled?"1" \
             nextcloud/ucs/userQuota?"" \
+            nextcloud/ucs/debug?"0" \
             nextcloud/ldap/cacheTTL?"600" \
             nextcloud/ldap/homeFolderAttribute?"" \
             nextcloud/ldap/userSearchAttributes?"uid;givenName;sn;employeeNumber;mailPrimaryAddress" \
@@ -102,9 +103,10 @@ nextcloud_update_ldap_bind_account() {
     fi
     data="configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
-    curl -X PUT -d "$data" \
+    nextcloud_curl -X PUT -d "$data" \
         -H "OCS-APIREQUEST: true" -u "nc_admin:$admin_password" "$NC_ADDITIONAL_CURL_ARGS" \
-        "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$configid" > /dev/null
+        "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$configid"
+
 }
 
 # configures the LDAP backend at Nextcloud using its OCS API
@@ -146,19 +148,20 @@ nextcloud_configure_ldap_backend() {
     data+="&configData[turnOnPasswordChange]=0"
     data+="&configData[ldapExperiencedAdmin]=1"
 
-    RESULT=`curl -X POST -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
+    RESULT=`nextcloud_curl -X POST -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
         "$NC_ADDITIONAL_CURL_ARGS" \
-        "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"`
+        "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"` \
+        || die "Failed to request an LDAP config id from Nextcloud"
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
     if [ ! $STATUS -eq 1 ] ; then
         die "Could not create LDAP Config at Nextcloud"
     fi
     CONFIGID=`echo $RESULT | grep -oP '(?<=<configID>).*?(?=</configID>)'`
     echo "$CONFIGID" > "$NC_PERMCONFDIR/ldap-config-id"
-    curl -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
+    nextcloud_curl -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
         "$NC_ADDITIONAL_CURL_ARGS" \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" \
-        > /dev/null | die "Configuring LDAP Backend failed"
+        || die "Configuring LDAP Backend failed"
 }
 
 nextcloud_add_Administrator_to_admin_group() {
@@ -170,8 +173,9 @@ nextcloud_add_Administrator_to_admin_group() {
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
 
     # triggers the mapping
-    RESULT=`curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
-        "$HOST/ocs/v2.php/cloud/users?search=Administrator"`
+    RESULT=`nextcloud_curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
+        "$HOST/ocs/v2.php/cloud/users?search=Administrator"` \
+        || die "Failed to fetch Administrator user in Nextcloud"
     # we expect the username (nc internal) to be Administrator
     STATUS=`echo $RESULT | grep "<element>Administrator</element>" -c`
     if [ ! $STATUS -eq 1 ] ; then
@@ -180,8 +184,9 @@ nextcloud_add_Administrator_to_admin_group() {
         die
     fi
 
-    RESULT=`curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
-        "$HOST/ocs/v2.php/cloud/users/Administrator/groups"`
+    RESULT=`nextcloud_curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
+        "$HOST/ocs/v2.php/cloud/users/Administrator/groups"` \
+        || die "Failed to add Administrator to admin group at Nextcloud"
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not Administrator to admin group, because adding as group member failed:"
@@ -304,6 +309,23 @@ nextcloud_modify_users() {
 
 nextcloud_mark_initial_conig_done() {
     touch "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done" || die
+}
+
+nextcloud_curl() {
+    local result
+    local curlCode
+    result=$(curl -s "$@")
+    curlCode=$?
+    #echo "curl exit code $curlCode params $@" > /dev/stderr
+    if [ ! ${curlCode} -eq 0 ]; then
+        debugOutput=""
+        if [ "$nextcloud_ucs_debug" -eq 1 ]; then
+            debugOutput=", parameters were\n\t$@"
+        fi
+        echo "curl failed with error $curlCode$debugOutput" > /dev/stderr
+        exit ${curlCode}
+    fi
+    echo "$result"
 }
 
 nextcloud_main "$@"
