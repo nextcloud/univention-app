@@ -107,6 +107,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
             tar -xf app.tar.gz
             rm app.tar.gz
         done
+        chown -R www-data:nogroup *
         cd ..
 
         # enable extra apps
@@ -124,6 +125,13 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     fi
 
 else
+    if [ "$NC_APPLIANCE" = true ]; then
+        # fixes wrong permissions as set in first release github issue #39
+        # TODO: remove this if block when 12 is phased out, should be more than enough time to upgrade
+        cd apps
+        chown -R www-data:nogroup *
+        cd ..
+    ]
     # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled 3rd-party app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
     for APPID in "${DISABLED_APPS[@]}" ; do
