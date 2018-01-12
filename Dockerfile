@@ -21,7 +21,7 @@
 
 FROM ubuntu:16.04
 
-COPY resources/nextcloud-12.0.4.tar.bz2 /root/nextcloud.tar.bz2
+COPY resources/nextcloud-12.0.5RC3.tar.bz2 /root/nextcloud.tar.bz2
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.0/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.0/cli/conf.d/
