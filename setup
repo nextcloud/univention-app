@@ -131,7 +131,7 @@ else
         cd apps
         chown -R www-data:nogroup *
         cd ..
-    ]
+    fi
     # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled 3rd-party app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
     for APPID in "${DISABLED_APPS[@]}" ; do
