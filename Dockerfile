@@ -48,6 +48,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-ldap \
 	php-pgsql \
 	php-smbclient \
+	php-mcrypt \
 	wget \
 	pwgen \
 	sudo \
