@@ -79,7 +79,7 @@ nextcloud_ensure_ucr() {
             nextcloud/ldap/userDisplayName?"displayName" \
             nextcloud/ldap/groupDisplayName?"cn" \
             nextcloud/ldap/base?"$ldap_base" \
-            nextcloud/ldap/baseUsers?"cn=users,$ldap_base" \
+            nextcloud/ldap/baseUsers?"$ldap_base" \
             nextcloud/ldap/baseGroups?"cn=groups,$ldap_base" \
             nextcloud/ldap/filterLogin?"(&(objectclass=nextcloudUser)(nextcloudEnabled=1)(uid=%uid))" \
             nextcloud/ldap/filterUsers?"(&(objectclass=nextcloudUser)(nextcloudEnabled=1))" \
