@@ -105,7 +105,7 @@ nextcloud_update_ldap_bind_account() {
     data="configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
     nextcloud_curl -X PUT -d "$data" \
-        -H "OCS-APIREQUEST: true" -u "nc_admin:$admin_password" "$NC_ADDITIONAL_CURL_ARGS" \
+        -H "OCS-APIREQUEST: true" -u "nc_admin:$admin_password" $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$configid"
 
 }
@@ -150,7 +150,7 @@ nextcloud_configure_ldap_backend() {
     data+="&configData[ldapExperiencedAdmin]=1"
 
     RESULT=`nextcloud_curl -X POST -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
-        "$NC_ADDITIONAL_CURL_ARGS" \
+        $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config"` \
         || die "Failed to request an LDAP config id from Nextcloud"
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
@@ -160,7 +160,7 @@ nextcloud_configure_ldap_backend() {
     CONFIGID=`echo $RESULT | grep -oP '(?<=<configID>).*?(?=</configID>)'`
     echo "$CONFIGID" > "$NC_PERMCONFDIR/ldap-config-id"
     nextcloud_curl -X PUT -d "$data" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" \
-        "$NC_ADDITIONAL_CURL_ARGS" \
+        $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" \
         || die "Configuring LDAP Backend failed"
 }
@@ -177,7 +177,7 @@ nextcloud_add_Administrator_to_admin_group() {
     local ADMIN_NAME="$(custom_username Administrator)" 
 
     # triggers the mapping
-    RESULT=`nextcloud_curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
+    RESULT=`nextcloud_curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/cloud/users?search=$ADMIN_NAME"` \
         || die "Failed to fetch Administrator user in Nextcloud"
     # we expect the username (nc internal) to be Administrator
@@ -188,7 +188,7 @@ nextcloud_add_Administrator_to_admin_group() {
         die
     fi
 
-    RESULT=`nextcloud_curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
+    RESULT=`nextcloud_curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/cloud/users/$ADMIN_NAME/groups"` \
         || die "Failed to add Administrator to admin group at Nextcloud"
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
