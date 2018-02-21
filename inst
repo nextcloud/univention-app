@@ -170,26 +170,29 @@ nextcloud_add_Administrator_to_admin_group() {
         return
     fi
 
+    . /usr/share/univention-lib/base.sh
+
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
+    local ADMIN_NAME="$(custom_username Administrator)" 
 
     # triggers the mapping
     RESULT=`nextcloud_curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
-        "$HOST/ocs/v2.php/cloud/users?search=Administrator"` \
+        "$HOST/ocs/v2.php/cloud/users?search=$ADMIN_NAME"` \
         || die "Failed to fetch Administrator user in Nextcloud"
     # we expect the username (nc internal) to be Administrator
-    STATUS=`echo $RESULT | grep "<element>Administrator</element>" -c`
+    STATUS=`echo $RESULT | grep "<element>$ADMIN_NAME</element>" -c`
     if [ ! $STATUS -eq 1 ] ; then
-        echo "Could not Administrator to admin group, because user was not found:"
+        echo "Could not add Administrator to admin group, because user was not found:"
         echo $RESULT
         die
     fi
 
     RESULT=`nextcloud_curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" "$NC_ADDITIONAL_CURL_ARGS" \
-        "$HOST/ocs/v2.php/cloud/users/Administrator/groups"` \
+        "$HOST/ocs/v2.php/cloud/users/$ADMIN_NAME/groups"` \
         || die "Failed to add Administrator to admin group at Nextcloud"
     STATUS=`echo $RESULT | grep "<statuscode>200</statuscode>" -c`
     if [ ! $STATUS -eq 1 ] ; then
-        echo "Could not Administrator to admin group, because adding as group member failed:"
+        echo "Could not add Administrator to admin group, because adding as group member failed:"
         echo $RESULT
         die
     fi
