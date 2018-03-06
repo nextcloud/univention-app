@@ -38,10 +38,12 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 
 fi
 
-# Remove the database  (apps permanent data and config folder are removed automatically)
+# Remove the database and the user
 su -c "psql -c \"drop database nextcloud\"" - postgres && \
     su -c "dropuser \"nextcloud\"" - postgres && \
-    rm /etc/postgresql-nextcloud.secret || die
+    rm /etc/postgresql-nextcloud.secret && \
+    # Remove the app folder, including config, data and UCS specific files that would block clean reinstall
+    rm -Rf "/var/lib/univention-appcenter/apps/nextcloud/"
 
 joinscript_remove_script_from_status_file nextcloud
 exit 0
