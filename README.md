@@ -156,9 +156,7 @@ Following steps are only done, when ``ucs_isServiceUnused`` returns ``true``.
 * Nextcloud system user is removed
 * All Nextcloud ucr variables are unset
 
-The Nextcloud PostgreSQL database and user are removed unconditionally, because the database resides on the docker host.
-
-UCS itself takes care of cleaning up the app folders. That means, that all data is deleted! To avoid this a manual backup has been done before (we can automatize it, but whereto?).
+The Nextcloud PostgreSQL database and user are removed unconditionally, because the database resides on the docker host. The app folder /var/lib/univention-appcenter/apps/nextcloud/ is being deleted. To avoid this a manual backup has been done before (we can automatize it, but whereto?).
 
 ## Upgrade process
 
