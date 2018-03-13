@@ -180,7 +180,6 @@ nextcloud_add_Administrator_to_admin_group() {
     RESULT=`nextcloud_curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/cloud/users?search=$ADMIN_NAME"` \
         || die "Failed to fetch Administrator user in Nextcloud"
-    # we expect the username (nc internal) to be Administrator
     STATUS=`echo $RESULT | grep "<element>$ADMIN_NAME</element>" -c`
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not add Administrator to admin group, because user was not found:"
