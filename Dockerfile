@@ -21,7 +21,7 @@
 
 FROM ubuntu:16.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-12.0.5.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://download.nextcloud.com/server/prereleases/nextcloud-12.0.6.tar.bz2 /root/nextcloud.tar.bz2
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.0/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.0/cli/conf.d/
@@ -54,6 +54,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	sudo \
 	lbzip2 \
 	unattended-upgrades
+
+RUN apt clean
 
 RUN a2enmod headers
 RUN a2enmod rewrite

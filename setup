@@ -87,18 +87,29 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
 
+    # set IP-related settings (refreshed on update)
+    $OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
+    $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
+    NC_TRUSTED_DOMAIN_NO=1
+    NC_HOST_IPS=($NC_HOST_IPS)
+    for HOST_IP in "${NC_HOST_IPS[@]}" ; do
+        HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
+        NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
+    done
+
     if [ "$NC_APPLIANCE" = true ]; then
         # Heads up: in Nc 13 we will have occ app:install <appid>
         EXTRA_APP_URLS=(\
             https://github.com/nextcloud/zenodo/releases/download/v0.9.4/zenodo-0.9.4.tar.gz \
-            https://download.nextcloud.com/server/apps/dashboard-4.0.5.tar.gz \
+            https://github.com/nextcloud/dashboard/releases/download/v4.0.6/dashboard-4.0.6.tar.gz \
             https://github.com/nextcloud/circles/releases/download/v0.13.6/circles-0.13.6.tar.gz \
-            https://download.nextcloud.com/server/apps/groupfolders-1.1.0.tar.gz \
+            https://github.com/nextcloud/groupfolders/releases/download/v1.2.0/groupfolders-1.2.0.tar.gz \
             https://github.com/nextcloud/announcementcenter/releases/download/v3.1.1/announcementcenter-3.1.1.tar.gz \
             https://github.com/nextcloud/admin_notifications/releases/download/v1.0.1/admin_notifications-1.0.1.tar.gz \
             https://github.com/nextcloud/quota_warning/releases/download/v1.1.1/quota_warning-1.1.1.tar.gz \
             https://download.nextcloud.com/server/apps/orcid-0.9.1.tar.gz \
-            https://download.nextcloud.com/server/apps/user_saml-1.4.0.tar.gz \
+            https://github.com/nextcloud/user_saml/releases/download/v1.4.2/user_saml-1.4.2.tar.gz \
         )
 
         cd apps
@@ -137,22 +148,7 @@ else
     for APPID in "${DISABLED_APPS[@]}" ; do
         $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
     done
-
-    # clean IP-related settings
-    $OCC config:system:delete trusted_domains
-    $OCC config:system:delete trusted_proxies
 fi
-
-# set IP-related settings (refreshed on update)
-$OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
-$OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
-NC_TRUSTED_DOMAIN_NO=1
-NC_HOST_IPS=($NC_HOST_IPS)
-for HOST_IP in "${NC_HOST_IPS[@]}" ; do
-    HOST_IP=$(echo "$HOST_IP" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    $OCC config:system:set trusted_domains "$NC_TRUSTED_DOMAIN_NO" --value="$HOST_IP"
-    NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
-done
 
 # env var is set from the dockerfile
 if [ "$NC_IS_PATCHED" = true ]; then
