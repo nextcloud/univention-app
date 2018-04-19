@@ -51,6 +51,8 @@ push-files:
 		i18n/de/README_INSTALL_DE \
 		i18n/en/README_UNINSTALL_EN \
 		i18n/de/README_UNINSTALL_DE
+	univention-appcenter-control set --noninteractive $(app_name)=$(app_version) \
+		--json '{"DockerImage": "nextcloud/univention-app-image:$(app_version)"}'
 
 .PHONY: docker
 docker:
