@@ -99,27 +99,16 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     done
 
     if [ "$NC_APPLIANCE" = true ]; then
-        # Heads up: in Nc 13 we will have occ app:install <appid>
-        EXTRA_APP_URLS=(\
-            https://github.com/nextcloud/zenodo/releases/download/v0.9.4/zenodo-0.9.4.tar.gz \
-            https://github.com/nextcloud/dashboard/releases/download/v4.0.6/dashboard-4.0.6.tar.gz \
-            https://github.com/nextcloud/circles/releases/download/v0.13.6/circles-0.13.6.tar.gz \
-            https://github.com/nextcloud/groupfolders/releases/download/v1.2.0/groupfolders-1.2.0.tar.gz \
-            https://github.com/nextcloud/announcementcenter/releases/download/v3.1.1/announcementcenter-3.1.1.tar.gz \
-            https://github.com/nextcloud/admin_notifications/releases/download/v1.0.1/admin_notifications-1.0.1.tar.gz \
-            https://github.com/nextcloud/quota_warning/releases/download/v1.1.1/quota_warning-1.1.1.tar.gz \
-            https://download.nextcloud.com/server/apps/orcid-0.9.1.tar.gz \
-            https://github.com/nextcloud/user_saml/releases/download/v1.4.2/user_saml-1.4.2.tar.gz \
-        )
-
-        cd apps
-        for APP_URL in "${EXTRA_APP_URLS[@]}" ; do
-            wget "$APP_URL" -O app.tar.gz && \
-            tar -xf app.tar.gz
-            rm app.tar.gz
-        done
-        chown -R www-data:nogroup *
-        cd ..
+        # install extra apps
+        $OCC app:install zenodo
+        $OCC app:install dashboard
+        $OCC app:install circles
+        $OCC app:install groupfolders
+        $OCC app:install announcementcenter
+        $OCC app:install admin_notifications
+        $OCC app:install quota_warning
+        $OCC app:install orcid
+        $OCC app:install user_saml
 
         # enable extra apps
         $OCC app:enable zenodo
@@ -131,6 +120,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         $OCC app:enable quota_warning
         $OCC app:enable orcid
         $OCC app:enable user_saml
+
         # ensure they are the latest version
         $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
     fi
