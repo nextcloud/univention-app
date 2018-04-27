@@ -221,5 +221,4 @@ This is essentially ``make push-files && make docker``
 
 Afterwards, there are still two things that need to be done in the Provider Portal:
 
-1. Adjust the docker image according to the release version
-2. Press the Publish button :)
+1. Press the Publish button :)

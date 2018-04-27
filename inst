@@ -135,7 +135,7 @@ nextcloud_configure_ldap_backend() {
     data+="&configData[ldapGroupFilterObjectclass]=nextcloudGroup"
     data+="&configData[ldapUserDisplayName]="`nextcloud_urlEncode "$nextcloud_ldap_userDisplayName"`
     data+="&configData[ldapGroupDisplayName]="`nextcloud_urlEncode "$nextcloud_ldap_groupDisplayName"`
-    data+="&configData[ldapEmailAttribute]=mailPrimaryAddress"
+    data+="&configData[ldapEmailAttribute]=mail"
     data+="&configData[ldapQuotaAttribute]=nextcloudQuota"
     data+="&configData[homeFolderNamingRule]="`nextcloud_urlEncode "$nextcloud_ldap_homeFolderAttribute"`
     data+="&configData[ldapGroupMemberAssocAttr]=uniqueMember"
