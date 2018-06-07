@@ -58,5 +58,3 @@ push-files:
 docker:
 	if [ `systemctl is-active docker` = "inactive" ] ; then sudo systemctl start docker; fi
 	sudo docker build -t $(docker_repo)/univention-app-image:$(app_version) .
-	sudo docker login -u $(docker_login) -p $(docker_pwd)
-	sudo docker push $(docker_repo)/univention-app-image:$(app_version)

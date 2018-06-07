@@ -207,17 +207,21 @@ Uploads go against the current Nextcloud app version as configured in the Makefi
 
 ### Create and upload docker image
 
+to create a local build use
+
 $ make docker
 
-assumes that account credentials are stored in ``~/.docker-account-user`` and ``~/.docker-account-pwd``.
+in order to trigger a build on the docker hub tag it like
 
-The only downside is that it needs to ask for the password, because of using sudo for the docker commands. No, we do not encourage adding users to the docker group.
+$ git tag "13.0.3-0"
+
+and push.
 
 ### Prepare release
 
-$ make
+Tag the latest commit with the package name, e.g. `13.0.3-0` and push the tags. An automated build is configured at the docker hub.
 
-This is essentially ``make push-files && make docker``
+$ make push-files
 
 Afterwards, there are still two things that need to be done in the Provider Portal:
 
