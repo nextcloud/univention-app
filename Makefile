@@ -52,9 +52,9 @@ push-files:
 		i18n/en/README_UNINSTALL_EN \
 		i18n/de/README_UNINSTALL_DE
 	univention-appcenter-control set --noninteractive $(app_name)=$(app_version) \
-		--json '{"DockerImage": "nextcloud/univention-app-image:$(app_version)"}'
+		--json '{"DockerImage": "nextcloud/univention-app:$(app_version)"}'
 
 .PHONY: docker
 docker:
 	if [ `systemctl is-active docker` = "inactive" ] ; then sudo systemctl start docker; fi
-	sudo docker build -t $(docker_repo)/univention-app-image:$(app_version) .
+	sudo docker build -t $(docker_repo)/univention-app:$(app_version) .
