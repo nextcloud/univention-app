@@ -184,7 +184,7 @@ nextcloud_add_Administrator_to_admin_group() {
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not add Administrator to admin group, because user was not found:"
         echo $RESULT
-        die
+        return
     fi
 
     RESULT=`nextcloud_curl -X POST -d "groupid=admin" -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" $NC_ADDITIONAL_CURL_ARGS \
@@ -194,7 +194,7 @@ nextcloud_add_Administrator_to_admin_group() {
     if [ ! $STATUS -eq 1 ] ; then
         echo "Could not add Administrator to admin group, because adding as group member failed:"
         echo $RESULT
-        die
+        return
     fi
 }
 
