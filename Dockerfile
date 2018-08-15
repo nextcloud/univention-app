@@ -40,6 +40,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-curl \
 	php-dompdf \
 	php-gd \
+	php-imagick \
 	php-mbstring \
 	php-xml \
 	php-xml-serializer \
