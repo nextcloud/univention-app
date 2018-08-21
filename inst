@@ -62,7 +62,8 @@ nextcloud_main() {
 }
 
 nextcloud_appliance_detection() {
-    if [ "`ucr get umc/web/appliance/id`" = "nextcloud" ]; then
+    appliance_id = $(ucr get umc/web/appliance/id)
+    if [ "$appliance_id" = "nextcloud" ] || [ "$appliance_id" = "collabora" ] || [ "$appliance_id" = "collabora-online" ] || [ "$appliance_id" = "onlyoffice-ds" ]; then
         # On appliance mode, the server works with a preliminary, unknown cert
         NC_ADDITIONAL_CURL_ARGS="--insecure"
     fi
