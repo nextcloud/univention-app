@@ -1,5 +1,6 @@
 # Nextcloud - Demo Docker
 #
+# @copyright Copyricht (c) 2018 Nico Gulden (gulden@univention.de)
 # @copyright Copyright (c) 2017 Arthur Schiwon (blizzz@arthur-schiwon.de)
 # @copyright Copyright (c) 2017 Lukas Reschke (lukas@statuscode.ch)
 # @copyright Copyright (c) 2016 Marcos Zuriaga Miguel (wolfi@wolfi.es)
@@ -22,6 +23,8 @@
 FROM ubuntu:16.04
 
 ADD https://download.nextcloud.com/server/prereleases/nextcloud-13.0.5.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/archive/2.0.11.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/archive/v2.0.2.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.0/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.0/cli/conf.d/
@@ -71,6 +74,18 @@ RUN cd /root/ && \
 	cd /var/www/html/ && \
 	chmod +x occ && \
 	chown -R www-data /var/www/html
+
+RUN cd /var/www/html/apps && \
+    mkdir richdocuments && \
+    tar -xf /root/richdocuments.tar.gz -C richdocuments --strip-components=1 && \
+    chown -R www-data:nogroup /var/www/html/apps/richdocuments && \
+    rm /root/richdocuments.tar.gz
+
+RUN cd /var/www/html/apps && \
+    mkdir onlyoffice && \
+    tar -xf /root/onlyoffice.tar.gz -C onlyoffice --strip-components=1 && \
+    chown -R www-data:nogroup /var/www/html/apps/onlyoffice && \
+    rm /root/onlyoffice.tar.gz
 
 # uncomment and adjust following block if a patch needs to be applied
 #RUN cd /var/www/html/ && \
