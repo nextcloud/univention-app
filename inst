@@ -350,7 +350,7 @@ detect_collabora () {
     if [ "$(ucr get appcenter/apps/collabora/status)" = "installed" ] || [ "$(ucr get appcenter/apps/collabora-online/status)" = "installed" ] ; then
         univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocuments
         occCode=$?
-        if [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] && [ ${occCode} -eq 0 ] ; then
+        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] ; then
             univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set richdocuments wopi_url --value="https://$FQDN/"
         fi
     else
@@ -367,7 +367,7 @@ detect_onlyoffice () {
     if [ "$(ucr get appcenter/apps/onlyoffice-ds/status)" = "installed" ] ; then
         univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
         occCode=$?
-        if [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] && [ ${occCode} -eq 0 ] ; then
+        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
             univention-app shell nextcloud occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
         fi
     else
