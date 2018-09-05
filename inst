@@ -353,8 +353,6 @@ detect_collabora () {
         if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] ; then
             univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set richdocuments wopi_url --value="https://$FQDN/"
         fi
-    else
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:disable richdocuments
     fi
 }
 
@@ -370,8 +368,6 @@ detect_onlyoffice () {
         if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
             univention-app shell nextcloud occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
         fi
-    else
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:disable onlyoffice
     fi
 }
 
