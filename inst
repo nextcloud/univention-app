@@ -57,12 +57,15 @@ nextcloud_main() {
     nextcloud_add_Administrator_to_admin_group
     nextcloud_mark_initial_conig_done
     nextcloud_import_ucs_certificates
+    detect_collabora
+    detect_onlyoffice
     joinscript_save_current_version
     exit 0
 }
 
 nextcloud_appliance_detection() {
-    if [ "`ucr get umc/web/appliance/id`" = "nextcloud" ]; then
+    appliance_id = $(ucr get umc/web/appliance/id)
+    if [ "$appliance_id" = "nextcloud" ] || [ "$appliance_id" = "collabora" ] || [ "$appliance_id" = "collabora-online" ] || [ "$appliance_id" = "onlyoffice-ds" ]; then
         # On appliance mode, the server works with a preliminary, unknown cert
         NC_ADDITIONAL_CURL_ARGS="--insecure"
     fi
@@ -336,6 +339,36 @@ nextcloud_curl() {
         exit ${curlCode}
     fi
     echo "$result"
+}
+
+detect_collabora () {
+    # When Collabora (CODE) or Collabora Online is already installed on the UCS system when Nextcloud is going to be installed,
+    # the richdocuments app is enabled and the WOPI URL is configured to the local system, if not already configured.
+    # If the app is not present, the richdocuments app is disabled
+    FQDN="$(ucr get hostname).$(ucr get domainname)"
+    echo "Check for richdocuments app"
+    if [ "$(ucr get appcenter/apps/collabora/status)" = "installed" ] || [ "$(ucr get appcenter/apps/collabora-online/status)" = "installed" ] ; then
+        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocuments
+        occCode=$?
+        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] ; then
+            univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set richdocuments wopi_url --value="https://$FQDN/"
+        fi
+    fi
+}
+
+detect_onlyoffice () {
+    # When ONLYOFFICE is already installed on the UCS system when Nextcloud is going to be installed,
+    # the onlyoffice app is enabled and the DocumentServerUrl is configured to the local system, if not already configured.
+    # If the app is not present, the onlyoffice app is disabled
+    FQDN="$(ucr get hostname).$(ucr get domainname)"
+    echo "Check for onlyoffice app"
+    if [ "$(ucr get appcenter/apps/onlyoffice-ds/status)" = "installed" ] ; then
+        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
+        occCode=$?
+        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
+            univention-app shell nextcloud occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
+        fi
+    fi
 }
 
 nextcloud_main "$@"
