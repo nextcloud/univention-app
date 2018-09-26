@@ -244,9 +244,9 @@ nextcloud_ensure_extended_attributes () {
         --set objectClass='nextcloudUser' \
         --set name='nextcloudUserQuota' \
         --set shortDescription='Nextcloud Quota' \
-        --set longDescription='Amount of storage available to the user' \
+        --set longDescription='Amount of storage available to the user (ex: 512 MB or 12 GB)' \
         --set translationShortDescription='"de_DE" "Nextcloud Quota"' \
-        --set translationLongDescription='"de_DE" "Der verfügbare Speicherplatz für den Benutzer"' \
+        --set translationLongDescription='"de_DE" "Der verfügbare Speicherplatz für den Benutzer (z.B. 512 MB oder 12 GB)"' \
         --set tabName='Nextcloud' \
         --set translationTabName='"de_DE" "Nextcloud"' \
         --set overwriteTab='0' \
