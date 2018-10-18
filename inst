@@ -367,7 +367,7 @@ detect_onlyoffice () {
         univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
         occCode=$?
         if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
-            univention-app shell nextcloud occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
+            univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
         fi
     fi
 }
