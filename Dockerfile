@@ -20,14 +20,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
-ADD https://download.nextcloud.com/server/prereleases/nextcloud-13.0.7.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud/richdocuments/releases/download/2.0.13/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://download.nextcloud.com/server/prereleases/nextcloud-14.0.4.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/releases/download/v3.0.5/richdocuments.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v2.0.4/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
-COPY resources/60-nextcloud.ini /etc/php/7.0/apache2/conf.d/
-COPY resources/60-nextcloud.ini /etc/php/7.0/cli/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/7.2/apache2/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/7.2/cli/conf.d/
+COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 ENV NC_IS_PATCHED false
 
@@ -46,13 +47,11 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-imagick \
 	php-mbstring \
 	php-xml \
-	php-xml-serializer \
 	php-zip \
 	php-apcu \
 	php-ldap \
 	php-pgsql \
 	php-smbclient \
-	php-mcrypt \
 	wget \
 	pwgen \
 	sudo \
@@ -91,8 +90,6 @@ RUN cd /var/www/html/apps && \
 #RUN cd /var/www/html/ && \
 #    patch -p1 -t < /root/6502.patch && \
 #    rm /root/6502.patch
-
-RUN sed -i '/DocumentRoot \/var\/www\/html/a \\tAlias \/nextcloud \/var\/www\/html' /etc/apache2/sites-enabled/000-default.conf
 
 EXPOSE 80
 
