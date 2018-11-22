@@ -1,6 +1,19 @@
+<p>Die Deinstallation von Nextcloud behält Anwendungs- und Nutzdaten bei.</p>
 <p>
-Die Deinstallation von Nextcloud wird ebenfalls alle Daten entfernen.
-</p>
-<p>
-Falls diese behalten werden sollen, sollte ein Backup der <i>nextcloud</i> Datenbank aus PostgreSQL sowie vom Datenordner <i>/var/lib/univention-appcenter/apps/nextcloud/data</i> angelegt werden, bevor mit der Deinstallation fortgefahren wird.
-</p>
+Folgende Artefakte bleiben erhalten:
+
+<h3>UCR Variablen</h3>
+<p>Diese können mit folgendem Befehl auf dem Host zurückgesetzt werden:</p>
+<p><code>ucr unset `ucr search --key "^nextcloud" | cut -d ":" -f 1 | grep nextcloud | tr '\n' ' '`</code></p>
+
+<h3>Die Datenbank</h3>
+<p>Mit folgenden Befehlen kann die Datenbank bereinigt werden</p>
+<p><code>su -c "psql -c \"drop database nextcloud\"" - postgres && \
+    su -c "dropuser \"nextcloud\"" - postgres && \
+    rm /etc/postgresql-nextcloud.secret
+</code></p>
+<p>Die erste Befehl löscht die Nextcloud Datenbank in Postgres, der zweite Befehl entfernt den Datenbank-Benutzer. Die Dritte tilgt die Passwortdatei.</p>
+
+<h3>Nextclouds Anwendungsordner</h3>
+<p>Der Anwendungsordner enthält UCS-spezifische Daten, sowie den Nextcloud Datenordner. Folgender Befehl löscht den Ordner</p>
+<p><code>rm -Rf "/var/lib/univention-appcenter/apps/nextcloud"</code></p>

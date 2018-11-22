@@ -33,17 +33,7 @@ if ucs_isServiceUnused "$SERVICE" "$@"; then
 
     univention-directory-manager container/cn remove "$@" \
         --dn "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" || die
-
-    ucr unset `ucr search --key "^nextcloud" | cut -d ":" -f 1 | grep nextcloud | tr '\n' ' '`
-
 fi
-
-# Remove the database and the user
-su -c "psql -c \"drop database nextcloud\"" - postgres && \
-    su -c "dropuser \"nextcloud\"" - postgres && \
-    rm /etc/postgresql-nextcloud.secret && \
-    # Remove the app folder, including config, data and UCS specific files that would block clean reinstall
-    rm -Rf "/var/lib/univention-appcenter/apps/nextcloud/"
 
 joinscript_remove_script_from_status_file nextcloud
 exit 0

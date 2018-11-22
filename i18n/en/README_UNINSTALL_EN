@@ -1,4 +1,19 @@
-Uninstalling Nextcloud will also remove all your data.
-<br>
-<br>
-If you want to keep it, back up the <i>nextcloud</i> database in your Postgres Database as well as the <i>/var/lib/univention-appcenter/apps/nextcloud/data</i> folder before continuing uninstalling Nextcloud.
+<p>Uninstalling Nextcloud keeps your data.</p>
+<p>
+Following artifacts are left:
+
+<h3>UCR Variables</h3>
+<p>In order to unset them on your host execute:</p>
+<p><code>ucr unset `ucr search --key "^nextcloud" | cut -d ":" -f 1 | grep nextcloud | tr '\n' ' '`</code></p>
+
+<h3>The database</h3>
+<p>In order to clean up the database, on the host execute:</p>
+<p><code>su -c "psql -c \"drop database nextcloud\"" - postgres && \
+    su -c "dropuser \"nextcloud\"" - postgres && \
+    rm /etc/postgresql-nextcloud.secret
+</code></p>
+<p>The first command drops the Nextcloud database in Postgres, the second one deletes the database user. The third deletes the password file.</p>
+
+<h3>Nextcloud application folder</h3>
+<p>The application folder contains UCS specific data, as well as the Nextcloud data folder inside it. To delete it, execute</p>
+<p><code>rm -Rf "/var/lib/univention-appcenter/apps/nextcloud"</code></p>
