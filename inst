@@ -29,7 +29,7 @@ SERVICE="Nextcloud"
 joinscript_init
 eval "$(ucr shell)"
 
-NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
+NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/data/integration"
 NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
 NC_MEMBER_OF=0
 HOST="https://${hostname}.${domainname}/nextcloud"
@@ -40,7 +40,7 @@ NC_LDAP_BIND_PW="$(< $NC_LDAP_BIND_PW_FILE)"
 NC_ADDITIONAL_CURL_ARGS=
 
 nextcloud_main() {
-    if [ -e "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done" ] ; then
+    if [ -e "$NC_PERMCONFDIR/initial_config_done" ] ; then
         IS_UPDATE=true
     fi
     ucs_addServiceToLocalhost "${SERVICE}" "$@"
@@ -322,7 +322,7 @@ nextcloud_import_ucs_certificates () {
 }
 
 nextcloud_mark_initial_conig_done() {
-    touch "/var/lib/univention-appcenter/apps/nextcloud/conf/initial_config_done" || die
+    touch "$NC_PERMCONFDIR/initial_config_done" || die
 }
 
 nextcloud_curl() {

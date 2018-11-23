@@ -1,0 +1,4 @@
+NC_PERMDATADIR=/var/lib/univention-appcenter/apps/nextcloud/data
+NC_PERMCONFDIR=/var/lib/univention-appcenter/apps/nextcloud/data/integration
+NC_PERMCONFDIR_OLD=/var/lib/univention-appcenter/apps/nextcloud/conf
+NC_UCR_DOMAIN=@%@hostname@%@.@%@domainname@%@

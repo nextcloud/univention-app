@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
+NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/data/integration"
+
+# TODO: remove this block once Nc 14 is end of life
+NC_PERMCONFDIR_OLD="/var/lib/univention-appcenter/apps/nextcloud/conf"
+if [ -d "$NC_PERMCONFDIR_OLD" ]; then
+    mv "$NC_PERMCONFDIR_OLD" "$NC_PERMCONFDIR"
+fi
+
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
 # the folder is not yet created, as expected
@@ -30,9 +37,7 @@ if [ "`ucr get umc/web/appliance/id`" = "nextcloud" ]; then
     APPLIANCE=true
 fi
 
-
 cat >"$NC_UCR_FILE" <<EOL
-export NC_UCR_DOMAIN="`ucr get hostname`"."`ucr get domainname`"
 export NC_HOST_IPS="`ucr dump | grep interfaces | grep address | cut -d ":" -f2`"
 export NC_TRUSTED_PROXY_IP="`ucr get docker/daemon/default/opts/bip | cut -d "/" -f 1`"
 export NC_APPLIANCE=$APPLIANCE

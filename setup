@@ -19,10 +19,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-NC_PERMDATADIR="/var/lib/univention-appcenter/apps/nextcloud/data"
 NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
-
-NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
 cd /var/www/html
