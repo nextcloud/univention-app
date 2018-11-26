@@ -118,6 +118,7 @@ nextcloud_update_ldap_bind_account() {
 nextcloud_configure_ldap_backend() {
     if [ $IS_UPDATE = true ] ; then
         echo "Not attempting to set LDAP configuration, because NC is already installed and set up."
+        nextcloud_update_ldap_backend_password_if_necessary
         return
     fi
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
@@ -167,6 +168,22 @@ nextcloud_configure_ldap_backend() {
         $NC_ADDITIONAL_CURL_ARGS \
         "$HOST/ocs/v2.php/apps/user_ldap/api/v1/config/$CONFIGID" \
         || die "Configuring LDAP Backend failed"
+}
+
+nextcloud_update_ldap_backend_password_if_necessary() {
+    # when the original user is configured, update the password to ensure it is set correctly even on a reinstall
+    # that kept the data and config from the previous installation
+    CONFIGID=$(< "$NC_PERMCONFDIR/ldap-config-id")
+    if [[ -z "$CONFIGID" ]]; then
+        return
+    fi
+
+    LDAP_CON_STATE=$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ ldap:test-config $CONFIGID)
+    if [[ "$LDAP_CON_STATE" != "The configuration is valid and the connection could be established!" ]] ; then
+        echo "Updating LDAP bind credentials"
+        univention-app shell nextcloud sudo -u www-data /var/www/html/occ ldap:set-config "$CONFIGID" ldapAgentName "$NC_LDAP_BIND_DN"
+        univention-app shell nextcloud sudo -u www-data /var/www/html/occ ldap:set-config "$CONFIGID" ldapAgentPassword "$NC_LDAP_BIND_PW"
+    fi
 }
 
 nextcloud_add_Administrator_to_admin_group() {
