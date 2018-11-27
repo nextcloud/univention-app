@@ -19,10 +19,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-NC_PERMDATADIR="/var/lib/univention-appcenter/apps/nextcloud/data"
 NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
-
-NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/conf"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
 cd /var/www/html
@@ -82,7 +79,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set overwritewbroot --value="/nextcloud"
     $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
     $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
-    $OCC maintenance:update:htaccess
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
@@ -139,6 +135,9 @@ else
         $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
     done
 fi
+
+# Recreate the htaccess on both install and update
+$OCC maintenance:update:htaccess
 
 # env var is set from the dockerfile
 if [ "$NC_IS_PATCHED" = true ]; then

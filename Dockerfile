@@ -45,6 +45,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-dompdf \
 	php-gd \
 	php-imagick \
+	php-intl \
 	php-mbstring \
 	php-xml \
 	php-zip \
