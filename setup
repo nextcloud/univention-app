@@ -79,7 +79,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set overwritewbroot --value="/nextcloud"
     $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
     $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
-    $OCC maintenance:update:htaccess
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:disable updatenotification
@@ -136,6 +135,9 @@ else
         $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
     done
 fi
+
+# Recreate the htaccess on both install and update
+$OCC maintenance:update:htaccess
 
 # env var is set from the dockerfile
 if [ "$NC_IS_PATCHED" = true ]; then
