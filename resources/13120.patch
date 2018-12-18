@@ -1,0 +1,234 @@
+From aff41210ad42ade669c110b6a683eafd66764e8d Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Tue, 27 Nov 2018 17:06:48 +0100
+Subject: [PATCH 1/4] cache users as existing after mapping
+
+during login they might be cached as non-existing and cause an Exception
+in the long run
+
+reduces some duplication, too
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ apps/user_ldap/lib/Access.php | 44 ++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 14 deletions(-)
+
+diff --git a/apps/user_ldap/lib/Access.php b/apps/user_ldap/lib/Access.php
+index 48914e64288..66d302460a3 100644
+--- a/apps/user_ldap/lib/Access.php
++++ b/apps/user_ldap/lib/Access.php
+@@ -610,26 +610,25 @@ public function dn2ocname($fdn, $ldapName = null, $isUser = true, &$newlyMapped
+ 		// outside of core user management will still cache the user as non-existing.
+ 		$originalTTL = $this->connection->ldapCacheTTL;
+ 		$this->connection->setConfiguration(['ldapCacheTTL' => 0]);
+-		if(($isUser && $intName !== '' && !$this->ncUserManager->userExists($intName))
+-			|| (!$isUser && !\OC::$server->getGroupManager()->groupExists($intName))) {
+-			if($mapper->map($fdn, $intName, $uuid)) {
+-				$this->connection->setConfiguration(['ldapCacheTTL' => $originalTTL]);
+-				if($this->ncUserManager instanceof PublicEmitter && $isUser) {
+-					$this->ncUserManager->emit('\OC\User', 'assignedUserId', [$intName]);
+-				}
+-				$newlyMapped = true;
++		if( $intName !== ''
++			&& (($isUser && !$this->ncUserManager->userExists($intName))
++				|| (!$isUser && !\OC::$server->getGroupManager()->groupExists($intName))
++			)
++		) {
++			$this->connection->setConfiguration(['ldapCacheTTL' => $originalTTL]);
++			$newlyMapped = $this->mapAndAnnounceIfApplicable($mapper, $fdn, $intName, $uuid, $isUser);
++			if($newlyMapped) {
+ 				return $intName;
+ 			}
+ 		}
+-		$this->connection->setConfiguration(['ldapCacheTTL' => $originalTTL]);
+
++		$this->connection->setConfiguration(['ldapCacheTTL' => $originalTTL]);
+ 		$altName = $this->createAltInternalOwnCloudName($intName, $isUser);
+-		if (is_string($altName) && $mapper->map($fdn, $altName, $uuid)) {
+-			if ($this->ncUserManager instanceof PublicEmitter && $isUser) {
+-				$this->ncUserManager->emit('\OC\User', 'assignedUserId', [$altName]);
++		if (is_string($altName)) {
++			if($this->mapAndAnnounceIfApplicable($mapper, $fdn, $altName, $uuid, $isUser)) {
++				$newlyMapped = true;
++				return $altName;
+ 			}
+-			$newlyMapped = true;
+-			return $altName;
+ 		}
+
+ 		//if everything else did not help..
+@@ -637,6 +636,23 @@ public function dn2ocname($fdn, $ldapName = null, $isUser = true, &$newlyMapped
+ 		return false;
+ 	}
+
++	protected function mapAndAnnounceIfApplicable(
++		AbstractMapping $mapper,
++		string $fdn,
++		string $name,
++		string $uuid,
++		bool $isUser
++	) :bool {
++		if($mapper->map($fdn, $name, $uuid)) {
++			if ($this->ncUserManager instanceof PublicEmitter && $isUser) {
++				$this->cacheUserExists($name);
++				$this->ncUserManager->emit('\OC\User', 'assignedUserId', [$name]);
++			}
++			return true;
++		}
++		return false;
++	}
++
+ 	/**
+ 	 * gives back the user names as they are used ownClod internally
+ 	 * @param array $ldapUsers as returned by fetchList()
+
+From a76695962b02aee8db5c81dda6c87ea874268811 Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Tue, 27 Nov 2018 17:09:55 +0100
+Subject: [PATCH 2/4] =?UTF-8?q?be=20careful=20with=20mixed=20return=20valu?=
+ =?UTF-8?q?es=20even=20if=20it=20may=20look=20unsuspicious=E2=80=A6?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ apps/dav/lib/CardDAV/SyncService.php | 2 +-
+ apps/dav/lib/HookManager.php         | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/apps/dav/lib/CardDAV/SyncService.php b/apps/dav/lib/CardDAV/SyncService.php
+index 5bd92015ad7..6f6fa0ba379 100644
+--- a/apps/dav/lib/CardDAV/SyncService.php
++++ b/apps/dav/lib/CardDAV/SyncService.php
+@@ -261,7 +261,7 @@ private function parseMultiStatus($body) {
+ 	/**
+ 	 * @param IUser $user
+ 	 */
+-	public function updateUser($user) {
++	public function updateUser(IUser $user) {
+ 		$systemAddressBook = $this->getLocalSystemAddressBook();
+ 		$addressBookId = $systemAddressBook['id'];
+ 		$converter = new Converter($this->accountManager);
+diff --git a/apps/dav/lib/HookManager.php b/apps/dav/lib/HookManager.php
+index b1bd039c65e..27b6525be47 100644
+--- a/apps/dav/lib/HookManager.php
++++ b/apps/dav/lib/HookManager.php
+@@ -101,7 +101,9 @@ public function setup() {
+
+ 	public function postCreateUser($params) {
+ 		$user = $this->userManager->get($params['uid']);
+-		$this->syncService->updateUser($user);
++		if ($user instanceof IUser) {
++			$this->syncService->updateUser($user);
++		}
+ 	}
+
+ 	public function preDeleteUser($params) {
+
+From 4d6cfe12dd215f7c3313734d507414e5b1725990 Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Mon, 17 Dec 2018 00:31:27 +0100
+Subject: [PATCH 4/4] LDAP clear cache on config modification also when done
+ via API or CLI
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ apps/user_ldap/lib/AppInfo/Application.php            | 6 ++++++
+ apps/user_ldap/lib/Command/SetConfig.php              | 5 +++++
+ apps/user_ldap/lib/Controller/ConfigAPIController.php | 9 ++++++++-
+ 3 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/apps/user_ldap/lib/AppInfo/Application.php b/apps/user_ldap/lib/AppInfo/Application.php
+index 6d5c416f04f..59d7cdb4924 100644
+--- a/apps/user_ldap/lib/AppInfo/Application.php
++++ b/apps/user_ldap/lib/AppInfo/Application.php
+@@ -24,6 +24,8 @@
+ namespace OCA\User_LDAP\AppInfo;
+
+ use OCA\User_LDAP\Controller\RenewPasswordController;
++use OCA\User_LDAP\ILDAPWrapper;
++use OCA\User_LDAP\LDAP;
+ use OCP\AppFramework\App;
+ use OCP\AppFramework\IAppContainer;
+ use OCP\IL10N;
+@@ -50,5 +52,9 @@ public function __construct () {
+ 				$server->getURLGenerator()
+ 			);
+ 		});
++
++		$container->registerService(ILDAPWrapper::class, function () {
++			return new LDAP();
++		});
+ 	}
+ }
+diff --git a/apps/user_ldap/lib/Command/SetConfig.php b/apps/user_ldap/lib/Command/SetConfig.php
+index db656558efc..cf73874ade8 100644
+--- a/apps/user_ldap/lib/Command/SetConfig.php
++++ b/apps/user_ldap/lib/Command/SetConfig.php
+@@ -26,6 +26,8 @@
+
+ namespace OCA\User_LDAP\Command;
+
++use OCA\User_LDAP\ConnectionFactory;
++use OCA\User_LDAP\LDAP;
+ use Symfony\Component\Console\Command\Command;
+ use Symfony\Component\Console\Input\InputArgument;
+ use Symfony\Component\Console\Input\InputInterface;
+@@ -83,5 +85,8 @@ protected function setValue($configID, $key, $value) {
+ 		$configHolder = new Configuration($configID);
+ 		$configHolder->$key = $value;
+ 		$configHolder->saveConfiguration();
++
++		$connectionFactory = new ConnectionFactory(new LDAP());
++		$connectionFactory->get($configID)->clearCache();
+ 	}
+ }
+diff --git a/apps/user_ldap/lib/Controller/ConfigAPIController.php b/apps/user_ldap/lib/Controller/ConfigAPIController.php
+index e000bd4e709..d5b33e41044 100644
+--- a/apps/user_ldap/lib/Controller/ConfigAPIController.php
++++ b/apps/user_ldap/lib/Controller/ConfigAPIController.php
+@@ -27,6 +27,7 @@
+ use OC\Core\Controller\OCSController;
+ use OC\Security\IdentityProof\Manager;
+ use OCA\User_LDAP\Configuration;
++use OCA\User_LDAP\ConnectionFactory;
+ use OCA\User_LDAP\Helper;
+ use OCP\AppFramework\Http\DataResponse;
+ use OCP\AppFramework\OCS\OCSBadRequestException;
+@@ -45,6 +46,9 @@ class ConfigAPIController extends OCSController {
+ 	/** @var ILogger */
+ 	private $logger;
+
++	/** @var ConnectionFactory */
++	private $connectionFactory;
++
+ 	public function __construct(
+ 		$appName,
+ 		IRequest $request,
+@@ -53,7 +57,8 @@ public function __construct(
+ 		IUserManager $userManager,
+ 		Manager $keyManager,
+ 		Helper $ldapHelper,
+-		ILogger $logger
++		ILogger $logger,
++		ConnectionFactory $connectionFactory
+ 	) {
+ 		parent::__construct(
+ 			$appName,
+@@ -67,6 +72,7 @@ public function __construct(
+
+ 		$this->ldapHelper = $ldapHelper;
+ 		$this->logger = $logger;
++		$this->connectionFactory = $connectionFactory;
+ 	}
+
+ 	/**
+@@ -198,6 +204,7 @@ public function modify($configID, $configData) {
+ 			}
+
+ 			$configuration->saveConfiguration();
++			$this->connectionFactory->get($configID)->clearCache();
+ 		} catch(OCSException $e) {
+ 			throw $e;
+ 		} catch (\Exception $e) {
