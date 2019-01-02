@@ -12,3 +12,5 @@
 <p>To add the indices run the following command from your host:</p>
 <p><code>univention-app shell nextcloud sudo -u www-data /var/www/html/occ db:add-missing-indices</code></p>
 <p>It is not necessary to put Nextcloud into maintenance mode, this action can run during production.</p>
+<h2>Mail server configuration</h2>
+<p>If the mail server configuration was not done by hand, it is recommended to set it up as Administrator in the admin settings.</p>
