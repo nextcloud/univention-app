@@ -8,8 +8,8 @@ Following artifacts are left:
 
 <h3>The database</h3>
 <p>In order to clean up the database, on the host execute:</p>
-<p><code>su -c "psql -c \"drop database nextcloud\"" - postgres && \
-    su -c "dropuser \"nextcloud\"" - postgres && \
+<p><code>su -c "psql -c \"drop database nextcloud\"" - postgres && \<br/>
+    su -c "dropuser \"nextcloud\"" - postgres && \<br/>
     rm /etc/postgresql-nextcloud.secret
 </code></p>
 <p>The first command drops the Nextcloud database in Postgres, the second one deletes the database user. The third deletes the password file.</p>

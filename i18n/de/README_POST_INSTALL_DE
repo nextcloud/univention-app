@@ -1,4 +1,6 @@
 <p>Glückwunsch, die Nextcloud-Instanz wurde erfolgreich installiert!</p>
+<h2>Mailserver Konfiguration</h2>
+<p>Gegenwärtig können die Mailserver-Einstellungen nicht automatisch eruiert werden. Als Administrator kann die Konfiguration in den Admineinstellungen eingetragen werden.</p>
 <h2>Hinweise zu Meldungen in der Übersicht der Admineinstellungen</h2>
 <p>Im Bereich der <strong>Sicherheits- & Einrichtungswarnungen</strong> werden wahrscheinlich einige Hinweise angezeigt, mit der die Nextcloud-Installation verbessert werden kann. Diese Punkt können nicht im Rahmen der Nextcloud Integration für UCS erfolgen, stattdessen entscheidet der Administrator gegebenenfalls Schritte durchzuführen.
 <h3>"Strict-Transport-Security" HTTP header</h3>

@@ -8,8 +8,8 @@ Folgende Artefakte bleiben erhalten:
 
 <h3>Die Datenbank</h3>
 <p>Mit folgenden Befehlen kann die Datenbank bereinigt werden</p>
-<p><code>su -c "psql -c \"drop database nextcloud\"" - postgres && \
-    su -c "dropuser \"nextcloud\"" - postgres && \
+<p><code>su -c "psql -c \"drop database nextcloud\"" - postgres && \<br/>
+    su -c "dropuser \"nextcloud\"" - postgres && \<br/>
     rm /etc/postgresql-nextcloud.secret
 </code></p>
 <p>Die erste Befehl löscht die Nextcloud Datenbank in Postgres, der zweite Befehl entfernt den Datenbank-Benutzer. Die Dritte tilgt die Passwortdatei.</p>

@@ -1,4 +1,6 @@
 <p>Congratulations, your Nextcloud instance was installed successfully!</p>
+<h2>Mail server configuration</h2>
+<p>Currently, it is not possible to automatically detect the mail server settings. Please log in as Administrator and configure in the admin settings.</p>
 <h2>Notes on messages shown in the admin settings overview</h2>
 <p>In the <strong>Security & setup warnings</strong> section it is likely that some messages are shown, on how to improve the setup. The items mentioned cannot be done by the Nextcloud integration for UCS, instead the admin needs to decide whether actions should be taken.</p>
 <h3>"Strict-Transport-Security" HTTP header</h3>
