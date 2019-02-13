@@ -19,13 +19,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+ERROR_FILE=$(getarg "--error-file")
+
+error_msg() {
+    if [ -n "$1" ]; then
+        IN="$@"
+    else
+        read IN # from stdin
+    fi
+	if [ -n "$ERROR_FILE" ]; then
+		echo "$IN" | tee -a "$ERROR_FILE" >&2
+	else
+		echo "$IN" >&2
+	fi
+}
+
 NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
 cd /var/www/html
 if [ ! -x occ ]; then
-	echo "occ missing or not executable"
-	exit 1
+	error_msg "/var/www/html/occ missing or not executable – was the docker container modified manually?"
+	exit 21
 fi
 
 OCC="sudo -u www-data ./occ"
@@ -55,12 +70,13 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
         --database-name "$DB_NAME" \
         --database-user "$DB_USER" \
         --database-pass "$DB_PASSWORD" \
-        --data-dir      "$NC_DATADIR"
+        --data-dir      "$NC_DATADIR" \
+        2>&1 | error_msg
 
     STATE=$?
     if [[ $STATE != 0 ]]; then
-        echo  "Error while installing Nextcloud"
-        exit 1;
+        error_msg  "Error while installing Nextcloud. Please check the apache log within the Nextcloud docker container, and (if existing) the nextcloud.log file in $NC_DATADIR."
+        exit 22;
     fi
 fi
 
@@ -69,6 +85,7 @@ $OCC check
 $OCC status
 $OCC app:list
 $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
+error_msg "The upgrade log is written to $UPGRADE_LOGFILE within the nextcloud container"
 
 # basic Nextcloud configuration
 eval "`cat \"$NC_UCR_FILE\"`"
@@ -132,7 +149,7 @@ else
     # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled incompatible app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
     for APPID in "${DISABLED_APPS[@]}" ; do
-        $OCC app:enable "$APPID" || echo "Could not re-enable $APPID"
+        $OCC app:enable "$APPID" || error_msg "Could not re-enable $APPID"
     done
 fi
 

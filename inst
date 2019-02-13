@@ -21,6 +21,7 @@
 
 VERSION=2
 SERVICE="Nextcloud"
+ERROR_FILE=$(getarg "--error-file")
 
 . /usr/share/univention-join/joinscripthelper.lib
 . /usr/share/univention-appcenter/joinscripthelper.sh
@@ -61,6 +62,25 @@ nextcloud_main() {
     detect_onlyoffice
     joinscript_save_current_version
     exit 0
+}
+
+error_msg() {
+    if [ -n "$1" ]; then
+        IN="$@"
+    else
+        read IN # from stdin
+    fi
+	if [ -n "$ERROR_FILE" ]; then
+		echo "$IN" | tee -a "$ERROR_FILE" >&2
+	else
+		echo "$IN" >&2
+	fi
+}
+
+
+die() {
+	error_msg "$@"
+	exit 1
 }
 
 nextcloud_appliance_detection() {
@@ -257,7 +277,7 @@ nextcloud_ensure_extended_attributes () {
     univention-directory-manager settings/extended_attribute modify "$@" \
         --dn "cn=nextcloudUserEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
         --set tabAdvanced='1' \
-        --set default="1" || die
+        --set default="1" || die "Could not modify nextcloudUserEnabled extended attribute"
 
     univention-directory-manager settings/extended_attribute create "$@" \
         --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="users/user" \
@@ -285,7 +305,7 @@ nextcloud_ensure_extended_attributes () {
         --set hook='None' || \
     univention-directory-manager settings/extended_attribute modify "$@" \
         --dn "cn=nextcloudUserQuota,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1' || die
+        --set tabAdvanced='1' || die "Could not modify nextcloudUserQuota extended attribute"
 
     univention-directory-manager settings/extended_attribute create "$@" \
         --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="groups/group" \
@@ -313,7 +333,7 @@ nextcloud_ensure_extended_attributes () {
         --set hook='None' || \
     univention-directory-manager settings/extended_attribute modify "$@" \
         --dn "cn=nextcloudGroupEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1' || die
+        --set tabAdvanced='1' || die "Could not modify nextcloudGroupEnabled extended attribute"
 }
 
 # Enables all Users that fit the filter to access Nextcloud
@@ -339,7 +359,7 @@ nextcloud_import_ucs_certificates () {
 }
 
 nextcloud_mark_initial_conig_done() {
-    touch "$NC_PERMCONFDIR/initial_config_done" || die
+    touch "$NC_PERMCONFDIR/initial_config_done" || die "Could not touch initial config flag"
 }
 
 nextcloud_curl() {
@@ -353,7 +373,7 @@ nextcloud_curl() {
         if [ "$nextcloud_ucs_debug" -eq 1 ]; then
             debugOutput=", parameters were\n\t$@"
         fi
-        echo "curl failed with error $curlCode$debugOutput" > /dev/stderr
+        error_msg "curl failed with error $curlCode$debugOutput"
         exit ${curlCode}
     fi
     echo "$result"
