@@ -48,6 +48,7 @@ push-files:
 		uinst \
 		update_app_version \
 		nextcloud.schema \
+		attributes \
 		i18n/en/README_INSTALL_EN \
 		i18n/de/README_INSTALL_DE \
 		i18n/en/README_POST_INSTALL_EN \

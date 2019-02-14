@@ -27,13 +27,5 @@ joinscript_init
 
 ucs_removeServiceFromLocalhost "${SERVICE}" "$@" || die
 
-if ucs_isServiceUnused "$SERVICE" "$@"; then
-    . /usr/share/univention-lib/ldap.sh
-    eval "$(ucr shell)"
-
-    univention-directory-manager container/cn remove "$@" \
-        --dn "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" || die
-fi
-
 joinscript_remove_script_from_status_file nextcloud
 exit 0

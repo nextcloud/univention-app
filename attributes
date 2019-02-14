@@ -1,0 +1,95 @@
+[nextcloudUser]
+Type=ExtendedOption
+ObjectClass=nextcloudUser
+Module=users/user
+Default=1
+Editable=1
+Description=Nextcloud
+DescriptionDE=Nextcloud
+LongDescription=User can access Nextcloud
+LongDescriptionDE=Der Benutzer kann auf Nextcloud zugreifen
+BelongsTo=nextcloudUser
+
+[nextcloudUserEnabled]
+Type=ExtendedAttribute
+Module=users/user
+LdapMapping=nextcloudEnabled
+BelongsTo=nextcloudUser
+Description=Access to Nextcloud
+DescriptionDE=Zugang für Nextloud
+LongDescription=User can access Nextcloud
+LongDescriptionDE=Der Benutzer kann auf Nextcloud zugreifen
+TabName=Nextcloud
+TabNameDE=Nextcloud
+OverwriteTab=0
+Required=0
+CliName=nextcloudEnabled
+UdmSyntax=AppActivatedBoolean
+Default=1
+Advanced=0
+DisableWeb=1
+Options=nextcloudUser
+MayChange=1
+DeleteObjectClass=1
+TabPosition=1
+DontSearch=0
+
+[nextcloudUserQuota]
+Type=ExtendedAttribute
+Module=users/user
+LdapMapping=nextcloudQuota
+BelongsTo=nextcloudUser
+Description=Nextcloud Quota
+DescriptionDE=Nextcloud Quota
+LongDescription=Amount of storage available to the user (ex: 512 MB or 12 GB)
+LongDescriptionDE=Der verfügbare Speicherplatz für den Benutzer (z.B. 512 MB oder 12 GB)
+TabName=Nextcloud
+TabNameDE=Nextcloud
+GroupName=Quota Settings
+GroupNameDE=Quota-Einstellungen
+OverwriteTab=0
+Required=0
+CliName=nextcloudQuota
+UdmSyntax=string
+Default=
+Advanced=0
+Options=nextcloudUser
+MayChange=1
+DeleteObjectClass=0
+TabPosition=1
+DontSearch=0
+
+[nextcloudGroup]
+Type=ExtendedOption
+ObjectClass=nextcloudGroup
+Module=groups/group
+Default=0
+Editable=1
+Description=Nextcloud
+DescriptionDE=Nextcloud
+LongDescription=The group is available in Nextcloud
+LongDescriptionDE=Die Gruppe ist in Nextcloud verfügbar
+BelongsTo=nextcloudGroup
+
+[nextcloudGroupEnabled]
+Type=ExtendedAttribute
+Module=groups/group
+LdapMapping=nextcloudEnabled
+BelongsTo=nextcloudGroup
+Description=Available in Nextcloud
+DescriptionDE=In Nextcloud verfügbar
+LongDescription=The group is available in Nextcloud
+LongDescriptionDE=Die Gruppe ist in Nextcloud verfügbar
+TabName=Nextcloud
+TabNameDE=Nextcloud
+OverwriteTab=0
+Required=0
+CliName=nextcloudEnabled
+UdmSyntax=AppActivatedBoolean
+Default=0
+Options=nextcloudGroup
+Advanced=0
+MayChange=1
+DeleteObjectClass=1
+TabPosition=1
+DontSearch=0
