@@ -21,6 +21,20 @@
 
 VERSION=2
 SERVICE="Nextcloud"
+
+ARGS=("$@")
+getarg() { # by Univention
+    local found=0
+    for arg in "${ARGS[@]}"; do
+        if [ "$found" -eq 1 ]; then
+            echo "$arg"
+            break
+        fi
+        if [ "$arg" = "$1" ]; then
+            found=1
+        fi
+    done
+}
 ERROR_FILE=$(getarg "--error-file")
 
 . /usr/share/univention-join/joinscripthelper.lib
