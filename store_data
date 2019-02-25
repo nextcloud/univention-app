@@ -19,6 +19,37 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+getarg() { # by Univention
+    local found=0
+    for arg in "${ARGS[@]}"; do
+        if [ "$found" -eq 1 ]; then
+            echo "$arg"
+            break
+        fi
+        if [ "$arg" = "$1" ]; then
+            found=1
+        fi
+    done
+}
+ERROR_FILE=$(getarg "--error-file")
+
+error_msg() {
+    if [ -n "$1" ]; then
+        IN="$@"
+    else
+        read IN # from stdin
+    fi
+	if [ -n "$ERROR_FILE" ]; then
+		echo "$IN" | tee -a "$ERROR_FILE" >&2
+	else
+		echo "$IN" >&2
+	fi
+}
+
 if [ -e "/var/www/html/config/config.php" ]; then
-    cp -Ra "/var/www/html/config" "$NC_PERMCONFDIR/"
+    if [ ! -d "$NC_PERMCONFDIR" ]; then
+        error_msg "Permanent data dir '$NC_PERMCONFDIR' did not exist, unexpectedly. Creating now."
+        mkdir -p "$NC_PERMCONFDIR" || (error_msg "Could not create directory"; exit 29)
+    fi
+    cp -Ra "/var/www/html/config" "$NC_PERMCONFDIR/" || (error_msg "Could not backup config file"; exit 30)
 fi
