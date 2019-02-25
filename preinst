@@ -29,8 +29,9 @@ fi
 
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
-# the folder is not yet created, as expected
-mkdir -p "$NC_PERMCONFDIR"
+if [ ! -d "$NC_PERMCONFDIR" ]; then
+    mkdir -p "$NC_PERMCONFDIR"
+fi
 
 APPLIANCE=false
 if [ "`ucr get umc/web/appliance/id`" = "nextcloud" ]; then
