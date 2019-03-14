@@ -161,7 +161,7 @@ else
     # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled incompatible app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
     for APPID in "${DISABLED_APPS[@]}" ; do
-        $OCC app:enable "$APPID" || error_msg "Could not re-enable $APPID"
+        $OCC app:enable "$APPID" || $OCC app:install "$APPID" || error_msg "Could not re-enable $APPID"
     done
 fi
 
