@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION=2
+VERSION=3
 SERVICE="Nextcloud"
 
 ARGS=("$@")
@@ -423,4 +423,9 @@ detect_onlyoffice () {
     fi
 }
 
-nextcloud_main "$@"
+if [ "$JS_LAST_EXECUTED_VERSION" = 2 ]; then
+    ucr commit /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/default-ssl.conf
+    joinscript_save_current_version
+else
+    nextcloud_main "$@"
+fi
