@@ -123,6 +123,9 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         NC_TRUSTED_DOMAIN_NO=$(($NC_TRUSTED_DOMAIN_NO+1))
     done
 
+    # This should not be necessary, but was observed… TODO: try to reproduce outside UCS, but with psql
+    $OCC db:convert-filecache-bigint -n
+
     if [ "$NC_APPLIANCE" = true ]; then
         # install extra apps
         $OCC app:install zenodo
