@@ -33,7 +33,7 @@ Totally replaces the container. Data and Config are kept, upgrade routine kick o
 
 ## Uninstall
 
-Removes container, all data, all system integrations (except Schema)
+Removes container, all system integrations (except Schema), keeps data
 
 
 # Tech info
