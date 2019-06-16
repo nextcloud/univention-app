@@ -53,6 +53,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-zip \
 	php-apcu \
 	php-ldap \
+	php-oauth \
 	php-pgsql \
 	php-smbclient \
 	wget \
