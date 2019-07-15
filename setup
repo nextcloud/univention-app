@@ -139,15 +139,15 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         $OCC app:install user_saml
 
         # enable extra apps
-        $OCC app:enable zenodo
-        $OCC app:enable dashboard
-        $OCC app:enable circles
-        $OCC app:enable groupfolders
-        $OCC app:enable announcementcenter
-        $OCC app:enable admin_notifications
-        $OCC app:enable quota_warning
-        $OCC app:enable orcid
-        $OCC app:enable user_saml
+        $OCC app:enable zenodo \
+            dashboard \
+            circles \
+            groupfolders \
+            announcementcenter \
+            admin_notifications \
+            quota_warning \
+            orcid \
+            user_saml
 
         # ensure they are the latest version
         $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
