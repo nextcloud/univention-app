@@ -110,6 +110,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set htaccess.RewriteBase --value="/nextcloud"
     $OCC background:cron
     $OCC app:enable user_ldap
+    $OCC app:install user_saml && $OCC app:enable user_saml
     $OCC app:disable updatenotification
 
     # set IP-related settings (refreshed on update)
@@ -135,7 +136,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         $OCC app:install announcementcenter
         $OCC app:install quota_warning
         $OCC app:install orcid
-        $OCC app:install user_saml
 
         # enable extra apps
         $OCC app:enable zenodo \
@@ -144,8 +144,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
             groupfolders \
             announcementcenter \
             quota_warning \
-            orcid \
-            user_saml
+            orcid
 
         # ensure they are the latest version
         $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
