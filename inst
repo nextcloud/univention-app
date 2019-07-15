@@ -159,6 +159,7 @@ nextcloud_configure_ldap_backend() {
 
     data="configData[ldapHost]="`nextcloud_urlEncode "$ldap_server_name"`
     data+="&configData[ldapPort]="`nextcloud_urlEncode "$ldap_server_port"`
+    data+="&configData[ldapTLS]=1"
     data+="&configData[ldapAgentName]="`nextcloud_urlEncode "$NC_LDAP_BIND_DN"`
     data+="&configData[ldapAgentPassword]="`nextcloud_urlEncode "$NC_LDAP_BIND_PW"`
     data+="&configData[ldapBase]="`nextcloud_urlEncode "$nextcloud_ldap_base"`
@@ -370,6 +371,8 @@ nextcloud_import_ucs_certificates () {
         docker exec -i "$(ucr get appcenter/apps/nextcloud/container)" \
             bash -c 'cat > /usr/local/share/ca-certificates/ucs-root-ca.crt'
     docker exec "$(ucr get appcenter/apps/nextcloud/container)" update-ca-certificates
+    docker exex -i "$(ucr get appcenter/apps/nextcloud/container)" \
+        bash -c 'echo "TLS_CACERT /usr/local/share/ca-certificates/ucs-root-ca.crt" >> /etc/ldap/ldap.conf'
 }
 
 nextcloud_mark_initial_conig_done() {
