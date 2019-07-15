@@ -133,7 +133,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         $OCC app:install circles
         $OCC app:install groupfolders
         $OCC app:install announcementcenter
-        $OCC app:install admin_notifications
         $OCC app:install quota_warning
         $OCC app:install orcid
         $OCC app:install user_saml
@@ -144,7 +143,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
             circles \
             groupfolders \
             announcementcenter \
-            admin_notifications \
             quota_warning \
             orcid \
             user_saml
