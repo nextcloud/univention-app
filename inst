@@ -361,7 +361,8 @@ nextcloud_configure_saml() {
         --set NameIDFormat="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" \
         --set simplesamlAttributes=TRUE \
         --set AssertionConsumerService="https://$hostname.$domainname/nextcloud/apps/user_saml/saml/acs" \
-        --set simplesamlNameIDAttribute="uid"  || die
+        --set simplesamlNameIDAttribute="uid" \
+        --set singleLogoutService="https://$hostname.$domainname/nextcloud/apps/user_saml/saml/sls" || die
 
     IDP_CERT=$(curl -s https://"${ucs_server_sso_fqdn:-ucs-sso.$domainname}"/simplesamlphp/saml2/idp/certificate | sed -ne '
         /-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p      # got the range, ok
@@ -374,7 +375,7 @@ nextcloud_configure_saml() {
     $SETCMD general-require_provisioned_account --value="1"
     $SETCMD general-allow_multiple_user_back_ends --value="1"
     $SETCMD general-uid_mapping --value="uid"
-    $SETCMD idp-singleLogoutService.url --value="https://$hostname.$domainname/simplesamlphp/saml2/idp/initSLO.php?RelayState=/simplesamlphp/logout.php"
+    $SETCMD idp-singleLogoutService.url --value="https://$ucs_server_sso_fqdn/simplesamlphp/saml2/idp/SingleLogoutService.php"
     $SETCMD idp-singleSignOnService.url --value="https://$ucs_server_sso_fqdn/simplesamlphp/saml2/idp/SSOService.php"
     $SETCMD idp-entityId --value="https://$ucs_server_sso_fqdn/simplesamlphp/saml2/idp/metadata.php"
 }
