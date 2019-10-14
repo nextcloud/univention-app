@@ -111,6 +111,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC background:cron
     $OCC app:enable user_ldap
     $OCC app:install user_saml && $OCC app:enable user_saml
+    $OCC app:install hsts && $OCC app:enable hsts
     $OCC app:disable updatenotification
 
     # set IP-related settings (refreshed on update)
