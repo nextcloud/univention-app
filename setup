@@ -168,6 +168,7 @@ if [ "$NC_IS_PATCHED" = true ]; then
     # otherwise a warning is shown, still
     $OCC integrity:check-app dav
     $OCC integrity:check-app user_ldap
+    $OCC integrity:check-core
 
     # integrity checks are done once on upgrade case, thus we can directly remove the flag again
     $OCC config:system:delete integrity.check.disabled
