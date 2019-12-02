@@ -150,6 +150,9 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
         $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
     fi
 
+    # ensure that all apps are up to date on installation (e.g. files_rightclick on 17.0.1)
+    $OCC app:update --all
+
 else
     # attempt to re-enable disabled apps
     DISABLED_APPS=( $(cat "$UPGRADE_LOGFILE" | grep "Disabled incompatible app:" | cut -d ":" -f 2 | egrep -o "[a-z]+[a-z0-9_]*[a-z0-9]+") )
