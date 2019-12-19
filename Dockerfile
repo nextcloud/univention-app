@@ -22,9 +22,9 @@
 
 FROM ubuntu:18.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-17.0.1.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud/richdocuments/releases/download/v3.4.5/richdocuments.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v3.0.2/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-17.0.2.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/releases/download/v3.4.6/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v4.0.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.2/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.2/cli/conf.d/
