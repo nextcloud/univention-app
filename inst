@@ -231,7 +231,7 @@ nextcloud_add_Administrator_to_admin_group() {
     . /usr/share/univention-lib/base.sh
 
     local NC_ADMIN_PWD=`cat "$NC_ADMIN_PWD_FILE"`
-    local ADMIN_NAME="$(custom_username Administrator)" 
+    local ADMIN_NAME="$(custom_username Administrator)"
 
     # triggers the mapping
     RESULT=`nextcloud_curl -X GET -H "OCS-APIREQUEST: true" -u "nc_admin:$NC_ADMIN_PWD" $NC_ADDITIONAL_CURL_ARGS \
@@ -403,8 +403,8 @@ nextcloud_import_ucs_certificates () {
         docker exec -i "$(ucr get appcenter/apps/nextcloud/container)" \
             bash -c 'cat > /usr/local/share/ca-certificates/ucs-root-ca.crt'
     docker exec "$(ucr get appcenter/apps/nextcloud/container)" update-ca-certificates
-    docker exex -i "$(ucr get appcenter/apps/nextcloud/container)" \
-        bash -c 'echo "TLS_CACERT /usr/local/share/ca-certificates/ucs-root-ca.crt" >> /etc/ldap/ldap.conf'
+    docker exec -i "$(ucr get appcenter/apps/nextcloud/container)" \
+        bash -c "sed -i 's#TLS_CACERT.*#TLS_CACERT /usr/local/share/ca-certificates/ucs-root-ca.crt#' /etc/ldap/ldap.conf"
 }
 
 nextcloud_mark_initial_conig_done() {
