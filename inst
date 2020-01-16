@@ -72,7 +72,6 @@ nextcloud_main() {
     nextcloud_modify_users "$@"
     nextcloud_add_Administrator_to_admin_group
     nextcloud_mark_initial_conig_done
-    nextcloud_import_ucs_certificates
     detect_collabora
     detect_onlyoffice
     joinscript_save_current_version
@@ -396,15 +395,6 @@ nextcloud_modify_users() {
             --set nextcloudQuota="$nextcloud_ucs_userQuota" \
             --set serviceprovider="$SP_DN"
     done
-}
-
-nextcloud_import_ucs_certificates () {
-    cat /etc/univention/ssl/ucsCA/CAcert.pem | \
-        docker exec -i "$(ucr get appcenter/apps/nextcloud/container)" \
-            bash -c 'cat > /usr/local/share/ca-certificates/ucs-root-ca.crt'
-    docker exec "$(ucr get appcenter/apps/nextcloud/container)" update-ca-certificates
-    docker exec -i "$(ucr get appcenter/apps/nextcloud/container)" \
-        bash -c "sed -i 's#TLS_CACERT.*#TLS_CACERT /usr/local/share/ca-certificates/ucs-root-ca.crt#' /etc/ldap/ldap.conf"
 }
 
 nextcloud_mark_initial_conig_done() {

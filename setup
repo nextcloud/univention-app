@@ -49,6 +49,9 @@ error_msg() {
 NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
+mv "$NC_PERMCONFDIR/ucs.crt" /usr/local/share/ca-certificates/ucs.crt 2>&1 | error_msg
+update-ca-certificates 2>&1 | error_msg
+
 cd /var/www/html
 if [ ! -x occ ]; then
 	error_msg "/var/www/html/occ missing or not executable – was the docker container modified manually?"
