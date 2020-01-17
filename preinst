@@ -40,4 +40,6 @@ EOL
 
 chmod +x "$NC_UCR_FILE"
 
+cp /etc/univention/ssl/ucsCA/CAcert.pem "$NC_PERMCONFDIR/ucs.crt"
+
 exit 0

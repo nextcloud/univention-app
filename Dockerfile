@@ -63,6 +63,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	lbzip2 \
 	unattended-upgrades
 
+COPY resources/ldap.conf /etc/ldap/
+
 RUN apt clean
 
 RUN a2enmod headers
