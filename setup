@@ -157,4 +157,4 @@ if [ "$NC_IS_PATCHED" = true ]; then
     $OCC config:system:delete integrity.check.disabled
 fi
 
-echo "*/15 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
+echo "*/5 * * * * www-data    php -f /var/www/html/cron.php" > /etc/cron.d/nextcloud
