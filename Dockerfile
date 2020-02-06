@@ -81,6 +81,8 @@ RUN cd /root/ && \
 	chmod +x occ && \
 	chown -R www-data /var/www/html
 
+RUN rm -Rf /var/www/html/apps/updatenotification
+
 RUN cd /var/www/html/apps && \
     mkdir richdocuments && \
     tar -xf /root/richdocuments.tar.gz -C richdocuments --strip-components=1 && \
