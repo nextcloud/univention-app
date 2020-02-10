@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @copyright Copyright (c) 2017 Arthur Schiwon <blizzz@arthur-schiwon.de>
+# @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
 # @author Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
@@ -44,6 +44,14 @@ error_msg() {
 	else
 		echo "$IN" >&2
 	fi
+}
+
+install_hub_apps () {
+    $OCC app:enable calendar
+    $OCC app:enable contacts
+    $OCC app:enable mail
+    $OCC app:enable spreed
+    # logic for office suite resides in join script
 }
 
 NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
@@ -118,6 +126,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC app:enable user_ldap
     $OCC app:install user_saml && $OCC app:enable user_saml
     $OCC app:disable updatenotification
+    install_hub_apps
 
     # set IP-related settings (refreshed on update)
     $OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
