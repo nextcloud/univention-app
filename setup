@@ -50,7 +50,7 @@ install_hub_apps () {
     $OCC app:enable calendar
     $OCC app:enable contacts
     $OCC app:enable mail
-    $OCC app:install spreed; $OCC app:enable spreed
+    $OCC app:install spreed 2> /dev/null; echo -n 'enabling Talk... '; $OCC app:enable spreed
     # logic for office suite resides in join script
 }
 
