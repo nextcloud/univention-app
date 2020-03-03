@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @copyright Copyright (c) 2017 Arthur Schiwon <blizzz@arthur-schiwon.de>
+# @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
 # @author Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
@@ -44,6 +44,14 @@ error_msg() {
 	else
 		echo "$IN" >&2
 	fi
+}
+
+install_hub_apps () {
+    $OCC app:enable calendar
+    $OCC app:enable contacts
+    $OCC app:enable mail
+    $OCC app:install spreed 2> /dev/null; echo -n 'enabling Talk... '; $OCC app:enable spreed
+    # logic for office suite resides in join script
 }
 
 NC_DATADIR="$NC_PERMDATADIR/nextcloud-data"
@@ -93,6 +101,9 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
         error_msg  "Error while installing Nextcloud. Please check the apache log within the Nextcloud docker container, and (if existing) the nextcloud.log file in $NC_DATADIR."
         exit 22;
     fi
+else
+    # TODO: disabling updatenotification can be removed with 19
+    $OCC app:disable updatenotification
 fi
 
 UPGRADE_LOGFILE="/var/log/nextcloud-upgrade_"`date +%y_%m_%d`".log"
@@ -115,6 +126,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC app:enable user_ldap
     $OCC app:install user_saml && $OCC app:enable user_saml
     $OCC app:disable updatenotification
+    install_hub_apps
 
     # set IP-related settings (refreshed on update)
     $OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
@@ -129,6 +141,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
 
     # This should not be necessary, but was observed… TODO: try to reproduce outside UCS, but with psql
     $OCC db:convert-filecache-bigint -n
+    $OCC db:add-missing-indices
 
     # ensure that all apps are up to date on installation (e.g. files_rightclick on 17.0.1)
     $OCC app:update --all

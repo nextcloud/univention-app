@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# @copyright Copyright (c) 2017 Arthur Schiwon <blizzz@arthur-schiwon.de>
+# @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
 # @author Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
@@ -54,6 +54,8 @@ NC_LDAP_BIND_PW_FILE="$(joinscript_container_file /etc/machine.secret)"
 NC_LDAP_BIND_PW="$(< $NC_LDAP_BIND_PW_FILE)"
 NC_ADDITIONAL_CURL_ARGS=
 
+NC_OFFICE_SUITE="oo_community" # fallback
+
 nextcloud_main() {
     if [ -e "$NC_PERMCONFDIR/initial_config_done" ] ; then
         IS_UPDATE=true
@@ -74,6 +76,7 @@ nextcloud_main() {
     nextcloud_mark_initial_conig_done
     detect_collabora
     detect_onlyoffice
+    ensure_office
     joinscript_save_current_version
     exit 0
 }
@@ -425,6 +428,7 @@ detect_collabora () {
     FQDN="$(ucr get hostname).$(ucr get domainname)"
     echo "Check for richdocuments app"
     if [ "$(ucr get appcenter/apps/collabora/status)" = "installed" ] || [ "$(ucr get appcenter/apps/collabora-online/status)" = "installed" ] ; then
+        NC_OFFICE_SUITE=collabora
         univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocuments
         occCode=$?
         if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] ; then
@@ -440,11 +444,27 @@ detect_onlyoffice () {
     FQDN="$(ucr get hostname).$(ucr get domainname)"
     echo "Check for onlyoffice app"
     if [ "$(ucr get appcenter/apps/onlyoffice-ds/status)" = "installed" ] ; then
+        NC_OFFICE_SUITE=onlyoffice
         univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
         occCode=$?
         if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
             univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
         fi
+    fi
+}
+
+ensure_office () {
+    if [[ "$NC_OFFICE_SUITE" = "oo_community" ]] && [[ "$IS_UPDATE" = false ]] ; then
+        echo -n "No office suite present – installing Community Document Server"
+        nohup univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable documentserver_community &
+        PID=$!
+        while ps --pid ${PID} > /dev/null; do
+            echo -n .
+            sleep 3
+        done
+        echo
+
+        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
     fi
 }
 
