@@ -22,7 +22,7 @@
 
 FROM ubuntu:18.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-18.0.1.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://download.nextcloud.com/server/releases/nextcloud-18.0.3.tar.bz2 /root/nextcloud.tar.bz2
 ADD https://github.com/nextcloud/richdocuments/releases/download/v3.5.2/richdocuments.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v4.1.4/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
