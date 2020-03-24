@@ -396,7 +396,7 @@ nextcloud_modify_users() {
         udm users/user modify "$@" --dn "$dn" \
             --set nextcloudEnabled="$nextcloud_ucs_userEnabled" \
             --set nextcloudQuota="$nextcloud_ucs_userQuota" \
-            --set serviceprovider="$SP_DN"
+            --append serviceprovider="$SP_DN"
     done
 }
 
