@@ -128,7 +128,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC app:disable updatenotification
     install_hub_apps
 
-    # set IP-related settings (refreshed on update)
+    # set IP-related settings
     $OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
     $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
     NC_TRUSTED_DOMAIN_NO=1
