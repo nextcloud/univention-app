@@ -22,7 +22,7 @@
 
 FROM ubuntu:18.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-18.0.1.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://download.nextcloud.com/server/releases/nextcloud-18.0.3.tar.bz2 /root/nextcloud.tar.bz2
 ADD https://github.com/nextcloud/richdocuments/releases/download/v3.5.2/richdocuments.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v4.1.4/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
@@ -31,8 +31,8 @@ COPY resources/60-nextcloud.ini /etc/php/7.2/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
-COPY resources/19439.patch /root/nc.patch
-ENV NC_IS_PATCHED true
+#COPY resources/19439.patch /root/nc.patch
+ENV NC_IS_PATCHED false
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -96,9 +96,9 @@ RUN cd /var/www/html/apps && \
     rm /root/onlyoffice.tar.gz
 
 # uncomment and adjust following block if a patch needs to be applied
-RUN cd /var/www/html/ && \
-    patch -p1 -t < /root/nc.patch && \
-    rm /root/nc.patch
+#RUN cd /var/www/html/ && \
+#    patch -p1 -t < /root/nc.patch && \
+#    rm /root/nc.patch
 
 EXPOSE 80
 

@@ -116,6 +116,8 @@ error_msg "The upgrade log is written to $UPGRADE_LOGFILE within the nextcloud c
 # basic Nextcloud configuration
 eval "`cat \"$NC_UCR_FILE\"`"
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
+    $OCC config:system:set updatechecker --type=boolean --value="false"    # this is handled via UCS AppCenter
+    $OCC config:system:set upgrade.disable-web --type=boolean --value="true"
     $OCC config:system:set updatechecker --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
     $OCC config:system:set overwriteprotocol --value="https"
@@ -128,7 +130,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC app:disable updatenotification
     install_hub_apps
 
-    # set IP-related settings (refreshed on update)
+    # set IP-related settings
     $OCC config:system:set trusted_proxies 0 --value="$NC_TRUSTED_PROXY_IP"
     $OCC config:system:set trusted_domains 0 --value="$NC_UCR_DOMAIN"
     NC_TRUSTED_DOMAIN_NO=1
