@@ -118,7 +118,6 @@ eval "`cat \"$NC_UCR_FILE\"`"
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set updatechecker --type=boolean --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set upgrade.disable-web --type=boolean --value="true"
-    $OCC config:system:set updatechecker --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
     $OCC config:system:set overwriteprotocol --value="https"
     $OCC config:system:set overwritewbroot --value="/nextcloud"
