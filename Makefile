@@ -21,7 +21,7 @@ app_name=nextcloud
 app_version=18.0.6-0
 app_upgrade_from=17.0.2-0
 
-ucs_version=4.1
+ucs_version=4.4
 
 docker_repo=nextcloud
 docker_login=`cat ~/.docker-account-user`
