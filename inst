@@ -443,7 +443,7 @@ detect_onlyoffice () {
     # If the app is not present, the onlyoffice app is disabled
     FQDN="$(ucr get hostname).$(ucr get domainname)"
     echo "Check for onlyoffice app"
-    if [ "$(ucr get appcenter/apps/onlyoffice-ds/status)" = "installed" ] ; then
+    if [ "$(ucr get appcenter/apps/onlyoffice-ds/status)" = "installed" ] || [ "$(ucr get appcenter/apps/onlyoffice-ds-ie/status)" = "installed" ] ; then
         NC_OFFICE_SUITE=onlyoffice
         univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
         occCode=$?
