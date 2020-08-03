@@ -20,14 +20,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-18.0.7.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.3/richdocuments.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v4.3.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-19.0.3.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.4/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v5.0.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
-COPY resources/60-nextcloud.ini /etc/php/7.2/apache2/conf.d/
-COPY resources/60-nextcloud.ini /etc/php/7.2/cli/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/7.4/apache2/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/7.4/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
@@ -44,6 +44,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	patch \
 	php \
 	php-curl \
+	php-dev \
 	php-dompdf \
 	php-gd \
 	php-imagick \
@@ -55,13 +56,18 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-ldap \
 	php-oauth \
 	php-pgsql \
-	php-smbclient \
+	php-pear \
 	php-gmp \
 	wget \
 	pwgen \
 	sudo \
 	lbzip2 \
-	unattended-upgrades
+	unattended-upgrades \
+	libsmbclient-dev
+
+RUN pecl install smbclient && apt purge -y php-dev
+
+RUN apt autoremove -y
 
 COPY resources/ldap.conf /etc/ldap/
 
