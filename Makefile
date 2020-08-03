@@ -34,7 +34,7 @@ all: push-files docker
 add-version:
 	if [ -z ${app_ver} ] ; then echo "no original app_version specified"; exit 13; fi
 	if [ -z ${app_newver} ] ; then echo "no target app_version specified"; exit 13; fi
-	univention-appcenter-control new-version "$(app_name)=$(app_ver)" "$(ucs_version)/$(app_name)=$(app_newver)"
+	univention-appcenter-control new-version "$(ucs_version)/$(app_name)=$(app_ver)" "$(ucs_version)/$(app_name)=$(app_newver)"
 
 .PHONY: push-files
 push-files:
