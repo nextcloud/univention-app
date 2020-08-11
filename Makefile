@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 app_name=nextcloud
-app_version=18.0.6-0
+app_version=18.0.7-0
 app_upgrade_from=17.0.2-0
 
 ucs_version=4.4
@@ -34,7 +34,7 @@ all: push-files docker
 add-version:
 	if [ -z ${app_ver} ] ; then echo "no original app_version specified"; exit 13; fi
 	if [ -z ${app_newver} ] ; then echo "no target app_version specified"; exit 13; fi
-	univention-appcenter-control new-version "$(app_name)=$(app_ver)" "$(ucs_version)/$(app_name)=$(app_newver)"
+	univention-appcenter-control new-version "$(ucs_version)/$(app_name)=$(app_ver)" "$(ucs_version)/$(app_name)=$(app_newver)"
 
 .PHONY: push-files
 push-files:

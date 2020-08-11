@@ -132,7 +132,7 @@ nextcloud_ensure_ucr() {
 
 # installs the memberof-overlay and saves the state in NC_MEMBER_OF
 nextcloud_attempt_memberof_support() {
-    NC_MEMBER_OF=`dpkg-query -W -f='${Status}\n' univention-ldap-overlay-memberof | grep Installed | grep "^i" -c`
+    NC_MEMBER_OF=`dpkg-query -W -f='${Status}\n' univention-ldap-overlay-memberof | grep -i installed | grep "^i" -c`
 }
 
 # update ldap bind account to nextcloud user
