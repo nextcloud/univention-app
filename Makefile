@@ -38,7 +38,7 @@ add-version:
 
 .PHONY: push-files
 push-files:
-	univention-appcenter-control upload --noninteractive $(app_name)=$(app_version) \
+	univention-appcenter-control upload --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
 		env \
 		restore_data_before_setup \
 		setup \
@@ -57,7 +57,7 @@ push-files:
 		i18n/de/README_UNINSTALL_DE \
 		i18n/en/README_POST_UPDATE_EN \
 		i18n/de/README_POST_UPDATE_DE
-	univention-appcenter-control set --noninteractive $(app_name)=$(app_version) \
+	univention-appcenter-control set --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
 		--json '{"DockerImage": "nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "4.4-0", "SupportedUCSVersions": "4.4-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
 
 .PHONY: docker
