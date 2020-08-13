@@ -55,13 +55,15 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-ldap \
 	php-oauth \
 	php-pgsql \
-	php-smbclient \
+	php-pear \
 	php-gmp \
 	wget \
 	pwgen \
 	sudo \
 	lbzip2 \
 	unattended-upgrades
+
+RUN pecl install smbclient
 
 COPY resources/ldap.conf /etc/ldap/
 
