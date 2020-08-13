@@ -44,6 +44,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	patch \
 	php \
 	php-curl \
+	php-dev \
 	php-dompdf \
 	php-gd \
 	php-imagick \
@@ -63,7 +64,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	lbzip2 \
 	unattended-upgrades
 
-RUN pecl install smbclient
+RUN pecl install smbclient && apt purge php-dev
 
 COPY resources/ldap.conf /etc/ldap/
 
