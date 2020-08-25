@@ -456,7 +456,7 @@ detect_onlyoffice () {
 ensure_office () {
     if [[ "$NC_OFFICE_SUITE" = "oo_community" ]] && [[ "$IS_UPDATE" = false ]] ; then
         echo -n "No office suite present – installing Community Document Server"
-        nohup univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable documentserver_community &
+        nohup univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocumentscode &
         PID=$!
         while ps --pid ${PID} > /dev/null; do
             echo -n .
@@ -464,7 +464,7 @@ ensure_office () {
         done
         echo
 
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
+        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocuments
     fi
 }
 
