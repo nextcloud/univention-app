@@ -19,12 +19,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# changed with the upgrade from Nextcloud 13 to 14.0.4
-# TODO: remove this block once Nc 14 is end of life
-if [ -e "$NC_PERMCONFDIR_OLD/config/config.php" ]; then
-    cp -a "$NC_PERMCONFDIR_OLD/config/config.php" "/var/www/html/config/"
-fi
-
 if [ -e "$NC_PERMCONFDIR/config/config.php" ]; then
     cp -a "$NC_PERMCONFDIR/config/"*config.php "/var/www/html/config/"
 fi
