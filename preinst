@@ -21,12 +21,6 @@
 
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/data/integration"
 
-# TODO: remove this block once Nc 14 is end of life
-NC_PERMCONFDIR_OLD="/var/lib/univention-appcenter/apps/nextcloud/conf"
-if [ -d "$NC_PERMCONFDIR_OLD" ]; then
-    mv "$NC_PERMCONFDIR_OLD" "$NC_PERMCONFDIR"
-fi
-
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
 
 if [ ! -d "$NC_PERMCONFDIR" ]; then
