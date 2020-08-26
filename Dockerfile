@@ -43,6 +43,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	libapache2-mod-php \
 	patch \
 	php \
+	php-bcmath \
 	php-curl \
 	php-dev \
 	php-dompdf \
