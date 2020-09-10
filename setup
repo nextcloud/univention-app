@@ -101,9 +101,6 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
         error_msg  "Error while installing Nextcloud. Please check the apache log within the Nextcloud docker container, and (if existing) the nextcloud.log file in $NC_DATADIR."
         exit 22;
     fi
-else
-    # TODO: disabling updatenotification can be removed with 19
-    $OCC app:disable updatenotification
 fi
 
 UPGRADE_LOGFILE="/var/log/nextcloud-upgrade_"`date +%y_%m_%d`".log"
@@ -111,13 +108,6 @@ $OCC check
 $OCC status
 $OCC app:list
 $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
-if [[ $(cat "$UPGRADE_LOGFILE" | grep "Cannot declare class" | wc -l) -eq 1 ]]; then
-    # This block can be removed with 19, cf. https://github.com/nextcloud/spreed/issues/2806
-    $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
-    if [[ $? -eq 0 ]]; then
-        $OCC maintenance:mode --off
-    fi
-fi
 error_msg "The upgrade log is written to $UPGRADE_LOGFILE within the nextcloud container"
 
 # basic Nextcloud configuration
