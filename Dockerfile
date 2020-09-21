@@ -64,7 +64,8 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	sudo \
 	lbzip2 \
 	unattended-upgrades \
-	libsmbclient-dev
+	libsmbclient-dev \
+	smbclient
 
 RUN pecl install smbclient && apt purge -y php-dev
 
