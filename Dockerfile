@@ -64,9 +64,16 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	sudo \
 	lbzip2 \
 	unattended-upgrades \
-	libsmbclient-dev
+	libsmbclient-dev \
+	unzip
 
-RUN pecl install smbclient && apt purge -y php-dev
+RUN wget -O /tmp/libsmbclient-php.zip https://github.com/eduardok/libsmbclient-php/archive/master.zip && \
+    unzip /tmp/libsmbclient-php.zip -d /tmp && \
+    cd /tmp/libsmbclient-php-master && \
+    phpize && ./configure && make && sudo make install && \
+    echo 'extension="smbclient.so"' >> /etc/php/7.4/cli/conf.d/60-nextcloud.ini && \
+    echo 'extension="smbclient.so"' >> /etc/php/7.4/apache2/conf.d/60-nextcloud.ini && \
+    apt purge -y php-dev unzip
 
 RUN apt autoremove -y
 
