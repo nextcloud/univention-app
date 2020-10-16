@@ -22,9 +22,9 @@
 
 FROM ubuntu:20.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-19.0.3.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.4/richdocuments.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v5.0.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-19.0.4.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.5/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v6.0.2/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.4/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.4/cli/conf.d/
@@ -64,9 +64,16 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	sudo \
 	lbzip2 \
 	unattended-upgrades \
-	libsmbclient-dev
+	libsmbclient-dev \
+	unzip
 
-RUN pecl install smbclient && apt purge -y php-dev
+RUN wget -O /tmp/libsmbclient-php.zip https://github.com/eduardok/libsmbclient-php/archive/master.zip && \
+    unzip /tmp/libsmbclient-php.zip -d /tmp && \
+    cd /tmp/libsmbclient-php-master && \
+    phpize && ./configure && make && sudo make install && \
+    echo 'extension="smbclient.so"' >> /etc/php/7.4/cli/conf.d/60-nextcloud.ini && \
+    echo 'extension="smbclient.so"' >> /etc/php/7.4/apache2/conf.d/60-nextcloud.ini && \
+    apt purge -y php-dev unzip
 
 RUN apt autoremove -y
 
