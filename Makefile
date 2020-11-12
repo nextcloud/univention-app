@@ -1,4 +1,4 @@
-# @copyright Copyright (c) 2017 Arthur Schiwon <blizzz@arthur-schiwon.de>
+# @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
 # @author Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 app_name=nextcloud
-app_version=19.0.4-0
-app_upgrade_from=18.0.7-0
+app_version=20.0.1-90
+app_upgrade_from=19.0.4-0
 
 ucs_version=4.4
 
