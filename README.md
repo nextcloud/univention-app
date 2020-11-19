@@ -213,9 +213,11 @@ $ make docker
 
 in order to trigger a build on the docker hub tag it like
 
-$ git tag "13.0.3-0"
+$ git tag "20.0.1-90"
 
 and push.
+
+$ git push --atomic origin prepare-20.0.2 20.0.1-90
 
 ### Prepare release
 
