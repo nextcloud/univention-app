@@ -41,6 +41,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	cron \
 	curl \
 	libapache2-mod-php \
+	libfuse2 \
 	patch \
 	php \
 	php-bcmath \
