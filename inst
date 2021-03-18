@@ -76,7 +76,6 @@ nextcloud_main() {
     nextcloud_mark_initial_conig_done
     detect_collabora
     detect_onlyoffice
-    ensure_office
     joinscript_save_current_version
     exit 0
 }
@@ -450,21 +449,6 @@ detect_onlyoffice () {
         if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
             univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
         fi
-    fi
-}
-
-ensure_office () {
-    if [[ "$NC_OFFICE_SUITE" = "oo_community" ]] && [[ "$IS_UPDATE" = false ]] ; then
-        echo -n "No office suite present – installing Community Document Server"
-        nohup univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocumentscode &
-        PID=$!
-        while ps --pid ${PID} > /dev/null; do
-            echo -n .
-            sleep 3
-        done
-        echo
-
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocuments
     fi
 }
 
