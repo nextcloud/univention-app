@@ -22,9 +22,9 @@
 
 FROM ubuntu:20.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-20.0.2.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.9/richdocuments.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v6.1.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-20.0.8.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.17/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v6.3.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.4/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.4/cli/conf.d/
@@ -41,6 +41,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	cron \
 	curl \
 	libapache2-mod-php \
+	libfuse2 \
 	patch \
 	php \
 	php-bcmath \
