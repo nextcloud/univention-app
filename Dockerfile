@@ -1,6 +1,6 @@
 # Nextcloud - Dockerfile
 #
-# @copyright Copyright (c) 2020 Arthur Schiwon (blizzz@arthur-schiwon.de)
+# @copyright Copyright (c) 2021 Arthur Schiwon (blizzz@arthur-schiwon.de)
 # @copyright Copyricht (c) 2018 Nico Gulden (gulden@univention.de)
 # @copyright Copyright (c) 2017 Lukas Reschke (lukas@statuscode.ch)
 # @copyright Copyright (c) 2016 Marcos Zuriaga Miguel (wolfi@wolfi.es)
@@ -22,9 +22,9 @@
 
 FROM ubuntu:20.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-20.0.9.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud/richdocuments/releases/download/v3.7.18/richdocuments.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v6.3.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-20.0.10.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud/richdocuments/releases/download/v3.8.1/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v6.4.2/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.4/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.4/cli/conf.d/
