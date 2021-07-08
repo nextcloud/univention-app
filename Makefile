@@ -1,4 +1,4 @@
-# @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
+# @copyright Copyright (c) 2021 Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
 # @author Arthur Schiwon <blizzz@arthur-schiwon.de>
 #
@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 app_name=nextcloud
-app_version=20.0.10-0
-app_upgrade_from=19.0.4-0
+app_version=21.0.3-0
+app_upgrade_from=20.0.10-0
 
 ucs_version=4.4
 
@@ -58,7 +58,7 @@ push-files:
 		i18n/en/README_POST_UPDATE_EN \
 		i18n/de/README_POST_UPDATE_DE
 	univention-appcenter-control set --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
-		--json '{"DockerImage": "nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "4.4-0", "SupportedUCSVersions": "4.4-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
+		--json '{"DockerImage": "ghcr.io/nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "4.4-0", "SupportedUCSVersions": "4.4-0, 5.0-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
 
 .PHONY: docker
 docker:
