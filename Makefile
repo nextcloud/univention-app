@@ -39,6 +39,7 @@ add-version:
 .PHONY: push-files
 push-files:
 	univention-appcenter-control upload --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
+		attributes \
 		env \
 		restore_data_before_setup \
 		setup \
