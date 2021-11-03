@@ -64,8 +64,9 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	pwgen \
 	sudo \
 	lbzip2 \
-	unattended-upgrades \
+	libmagickcore-6.q16-6-extra \
 	libsmbclient-dev \
+	unattended-upgrades \
 	unzip
 
 RUN wget -O /tmp/libsmbclient-php.zip https://github.com/eduardok/libsmbclient-php/archive/master.zip && \
