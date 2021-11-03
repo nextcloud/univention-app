@@ -1,0 +1,64 @@
+[nextcloudUserQuota]
+Description = Nextcloud Quota
+DescriptionDe = Nextcloud Quota
+LongDescription = Amount of storage available to the user (ex: 512 MB or 12 GB)
+LongDescriptionDe = Der verfügbare Speicherplatz für den Benutzer (z.B. 512 MB oder 12 GB)
+Syntax = String
+LdapMapping = nextcloudQuota
+CliName = nextcloudQuota
+Advanced = 1
+TabPosition = 1
+TabName = Nextcloud
+TabNameDe = Nextcloud
+BelongsTo = nextcloudUser
+DeleteObjectClass = 0
+Required = 0
+OverwriteTab = 0
+OverwritePosition = 0
+DontSearch = 0
+Hook = None
+
+[nextcloudUserEnabled]
+Description = Access to Nextcloud
+DescriptionDe = Zugang für Nextloud
+LongDescription = Whether user may access Nextcloud
+LongDescriptionDe = Der Benutzer kann auf Nextcloud zugreifen
+Syntax = Boolean
+UdmSyntax = boolean
+LdapMapping = nextcloudEnabled
+CliName = nextcloudEnabled
+Advanced = 1
+Default = 1
+TabPosition = 1
+TabName = Nextcloud
+TabNameDe = Nextcloud
+BelongsTo = nextcloudUser
+DeleteObjectClass = 0
+Required = 0
+OverwriteTab = 0
+OverwritePosition = 0
+DontSearch = 0
+Hook = None
+
+[nextcloudGroupEnabled]
+Description = Available in Nextcloud
+DescriptionDe = In Nextcloud verfügbar
+LongDescription = The group is available in Nextcloud
+LongDescriptionDe = Die Gruppe ist in Nextcloud verfügbar
+Syntax = Boolean
+UdmSyntax = boolean
+LdapMapping = nextcloudEnabled
+CliName = nextcloudEnabled
+Advanced = 0
+Default = 0
+TabPosition = 1
+TabName = Nextcloud
+TabNameDe = Nextcloud
+BelongsTo = nextcloudGroup
+Module = groups/group
+DeleteObjectClass = 0
+Required = 0
+OverwriteTab = 0
+OverwritePosition = 0
+DontSearch = 0
+Hook = None
