@@ -67,8 +67,6 @@ nextcloud_main() {
     fi
     nextcloud_ensure_ucr
     nextcloud_attempt_memberof_support
-    joinscript_register_schema "$@"
-    nextcloud_ensure_extended_attributes "$@"
     nextcloud_configure_saml "$@"
     nextcloud_configure_ldap_backend
     nextcloud_modify_users "$@"
@@ -259,98 +257,6 @@ nextcloud_add_Administrator_to_admin_group() {
 nextcloud_urlEncode() {
   python -c 'import urllib, sys; print urllib.quote(sys.argv[1], sys.argv[2])' \
     "$1" ""
-}
-
-# adds extended attributes to UCS so admins can enable or disable Nextcloud access for users and groups
-nextcloud_ensure_extended_attributes () {
-    univention-directory-manager container/cn create "$@" --ignore_exists \
-        --position "cn=custom attributes,cn=univention,$ldap_base" \
-        --set name=nextcloud
-
-    univention-directory-manager settings/extended_attribute create "$@" \
-        --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="users/user" \
-        --set ldapMapping='nextcloudEnabled' \
-        --set objectClass='nextcloudUser' \
-        --set name='nextcloudUserEnabled' \
-        --set shortDescription='Access to Nextcloud' \
-        --set longDescription='Whether user may access Nextcloud' \
-        --set translationShortDescription='"de_DE" "Zugang für Nextloud"' \
-        --set translationLongDescription='"de_DE" "Der Benutzer kann auf Nextcloud zugreifen"' \
-        --set tabName='Nextcloud' \
-        --set translationTabName='"de_DE" "Nextcloud"' \
-        --set overwriteTab='0' \
-        --set valueRequired='0' \
-        --set CLIName='nextcloudEnabled' \
-        --set syntax='boolean' \
-        --set default="1" \
-        --set tabAdvanced='1' \
-        --set mayChange='1' \
-        --set multivalue='0' \
-        --set deleteObjectClass='0' \
-        --set tabPosition='1' \
-        --set overwritePosition='0' \
-        --set doNotSearch='0' \
-        --set hook='None' || \
-    univention-directory-manager settings/extended_attribute modify "$@" \
-        --dn "cn=nextcloudUserEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1' \
-        --set default="1" || die "Could not modify nextcloudUserEnabled extended attribute"
-
-    univention-directory-manager settings/extended_attribute create "$@" \
-        --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="users/user" \
-        --set ldapMapping='nextcloudQuota' \
-        --set objectClass='nextcloudUser' \
-        --set name='nextcloudUserQuota' \
-        --set shortDescription='Nextcloud Quota' \
-        --set longDescription='Amount of storage available to the user (ex: 512 MB or 12 GB)' \
-        --set translationShortDescription='"de_DE" "Nextcloud Quota"' \
-        --set translationLongDescription='"de_DE" "Der verfügbare Speicherplatz für den Benutzer (z.B. 512 MB oder 12 GB)"' \
-        --set tabName='Nextcloud' \
-        --set translationTabName='"de_DE" "Nextcloud"' \
-        --set overwriteTab='0' \
-        --set valueRequired='0' \
-        --set CLIName='nextcloudQuota' \
-        --set syntax='string' \
-        --set default="" \
-        --set tabAdvanced='1' \
-        --set mayChange='1' \
-        --set multivalue='0' \
-        --set deleteObjectClass='0' \
-        --set tabPosition='1' \
-        --set overwritePosition='0' \
-        --set doNotSearch='0' \
-        --set hook='None' || \
-    univention-directory-manager settings/extended_attribute modify "$@" \
-        --dn "cn=nextcloudUserQuota,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1' || die "Could not modify nextcloudUserQuota extended attribute"
-
-    univention-directory-manager settings/extended_attribute create "$@" \
-        --position "cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" --set module="groups/group" \
-        --set ldapMapping='nextcloudEnabled' \
-        --set objectClass='nextcloudGroup' \
-        --set name='nextcloudGroupEnabled' \
-        --set shortDescription='Available in Nextcloud' \
-        --set longDescription='The group is available in Nextcloud' \
-        --set translationShortDescription='"de_DE" "In Nextcloud verfügbar"' \
-        --set translationLongDescription='"de_DE" "Die Gruppe ist in Nextcloud verfügbar"' \
-        --set tabName='Nextcloud' \
-        --set translationTabName='"de_DE" "Nextcloud"' \
-        --set overwriteTab='0' \
-        --set valueRequired='0' \
-        --set CLIName='nextcloudEnabled' \
-        --set syntax='boolean' \
-        --set default="0" \
-        --set tabAdvanced='0' \
-        --set mayChange='1' \
-        --set multivalue='0' \
-        --set deleteObjectClass='0' \
-        --set tabPosition='1' \
-        --set overwritePosition='0' \
-        --set doNotSearch='0' \
-        --set hook='None' || \
-    univention-directory-manager settings/extended_attribute modify "$@" \
-        --dn "cn=nextcloudGroupEnabled,cn=nextcloud,cn=custom attributes,cn=univention,$ldap_base" \
-        --set tabAdvanced='1' || die "Could not modify nextcloudGroupEnabled extended attribute"
 }
 
 nextcloud_configure_saml() {
