@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 app_name=nextcloud
-app_version=21.0.4-0
+app_version=21.0.5-0
 app_upgrade_from=20.0.10-0
 
 ucs_version=4.4
@@ -39,6 +39,7 @@ add-version:
 .PHONY: push-files
 push-files:
 	univention-appcenter-control upload --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
+		attributes \
 		env \
 		restore_data_before_setup \
 		setup \
