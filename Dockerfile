@@ -22,9 +22,9 @@
 
 FROM ubuntu:20.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-21.0.7.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v4.2.3/richdocuments.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v7.2.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-23.0.3.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v5.0.3/richdocuments.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v7.3.2/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/7.4/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/7.4/cli/conf.d/
