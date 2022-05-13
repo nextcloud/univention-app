@@ -277,14 +277,17 @@ nextcloud_configure_saml() {
     ')
 
     SETCMD="univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set user_saml"
-    $SETCMD idp-x509cert --value="$IDP_CERT"
     $SETCMD type --value="saml"
     $SETCMD general-require_provisioned_account --value="1"
     $SETCMD general-allow_multiple_user_back_ends --value="1"
-    $SETCMD general-uid_mapping --value="uid"
-    $SETCMD idp-singleLogoutService.url --value="https://$ucs_server_sso_fqdn/simplesamlphp/saml2/idp/SingleLogoutService.php"
-    $SETCMD idp-singleSignOnService.url --value="https://$ucs_server_sso_fqdn/simplesamlphp/saml2/idp/SSOService.php"
-    $SETCMD idp-entityId --value="https://$ucs_server_sso_fqdn/simplesamlphp/saml2/idp/metadata.php"
+
+    univention-app shell nextcloud sudo -u www-data /var/www/html/occ saml:config:set \
+        --idp-x509cert="${IDP_CERT}" \
+        --general-uid_mapping="uid" \
+        --idp-singleLogoutService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SingleLogoutService.php" \
+        --idp-singleSignOnService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SSOService.php" \
+        --idp-entityId="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/metadata.php" \
+        1
 }
 
 # Enables all Users that fit the filter to access Nextcloud
