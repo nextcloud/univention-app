@@ -6,6 +6,10 @@
 TARGET_VERSION=${1}
 
 function main() {
+  BRANCH="prepare/${TARGET_VERSION}"
+  git fetch
+  git checkout -b ${BRANCH} origin/master
+
   # OLD_VERSION=$(grep -Po '^ADD.*nextcloud-\K[0-9]{2,3}\.[0-9]\.[0-9]{1,2}[^\.]*' Dockerfile)
   sed -i -E "s/nextcloud-[0-9]{2,3}\.[0-9]\.[0-9]{1,2}[^\.]*/nextcloud-${TARGET_VERSION}/" Dockerfile
 
@@ -16,7 +20,38 @@ function main() {
     echo $DOWNLOADLINK
   done
 
+  # FIXME: adjust version in Makefile
 
+  git diff
+  git commit -sam "prepare ${TARGET_VERSION}"
+  # FIXME: allow to override tag
+  git tag "${TARGET_VERSION}-0"
+  git push --tags origin "${BRANCH}"
+
+  TODOS=$(cat <<EOL
+* [ ] test fresh install
+* [ ] test upgrade
+* [ ] request publish
+* [ ] assert publishedgit
+EOL
+  )
+
+  # FIXME: GITHUB_TOKEN not set
+  PULL_REQUEST=$(curl --silent \
+      -X POST \
+      -H "Accept: application/vnd.github.v3+json" \
+      -H "Authorization: token ${GITHUB_TOKEN}" \
+      https://api.github.com/repos/nextcloud/univention-app/pulls \
+      -d "{
+        \"title\":\"prepare ${TARGET_VERSION}\",
+        \"body\":\"${TODOS}\",
+        \"head\":\"${BRANCH}\",
+        \"base\":\"master\"
+      }") \
+      && echo "PR opened at $(${PULL_REQUEST} | jq -r .html_url)"
+
+  # FIXME: call make add-version
+  # FIXME: call push-files
 }
 
 function get_app_download_uri() {
