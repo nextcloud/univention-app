@@ -2,5 +2,5 @@
 Nextcloud bietet die Möglichkeit, LDAP Gruppen aus UCS zu verwenden. Dies vereinfacht es zum Beispiel, Ordner für eine Gruppe von Leuten bereit zu stellen. Um eine bestimmte Gruppe einzubeziehen, können diese aus ihren erweiterten Einstellungen in UCS heraus für Nextcloud freigegeben werden. Um eine signifikant bessere Performance zu erhalten, sollte vor der Nextcloud-Installation das <a href="https://help.univention.com/t/memberof-attribute-group-memberships-of-user-and-computer-objects/6439" target="_blank">memberOf-Overlay</a> aktiviert werden. In Domänen, die mindestens mit UCS Version 4.3 installiert wurden, ist das memberOf-Overlay standardmäßig aktiviert.
 </p>
 <p>
-Falls im Host Webserver HTTP Strict Transport Security nicht eingeschaltet sein sollte, so ist diese Einrichtung zu empfehlen. Weitere Informationen dazu befinden sich in der <a href="https://docs.nextcloud.com/server/23/admin_manual/installation/harden_server.html#enable-http-strict-transport-security" target="_blank">Dokumentation</a>.
+Falls im Host Webserver HTTP Strict Transport Security nicht eingeschaltet sein sollte, so ist diese Einrichtung zu empfehlen. Weitere Informationen dazu befinden sich in der <a href="https://docs.nextcloud.com/server/24/admin_manual/installation/harden_server.html#enable-http-strict-transport-security" target="_blank">Dokumentation</a>.
 </p>
