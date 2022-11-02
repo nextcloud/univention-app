@@ -163,12 +163,6 @@ fi
 # Recreate the htaccess on both install and update
 $OCC maintenance:update:htaccess
 
-# Apply one-click-instance settings...
-$OCC config:system:set one-click-instance --value=true --type=bool
-$OCC config:system:set one-click-instance.user-limit --value=100 --type=int
-$OCC config:system:set one-click-instance.link --value="https://nextcloud.com/univention/"
-$OCC app:enable support
-
 # env var is set from the dockerfile
 if [ "$NC_IS_PATCHED" = true ]; then
     $OCC config:system:set integrity.check.disabled --value="true" --type=boolean
