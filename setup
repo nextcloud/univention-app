@@ -116,7 +116,6 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set updatechecker --type=boolean --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set upgrade.disable-web --type=boolean --value="true"
     $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
-    $OCC config:system:set --value "\OC\Memcache\APCu" memcache.distributed
     $OCC config:system:set overwriteprotocol --value="https"
     $OCC config:system:set overwritewbroot --value="/nextcloud"
     $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
@@ -151,13 +150,6 @@ else
     for APPID in "${DISABLED_APPS[@]}" ; do
         $OCC app:enable "$APPID" || $OCC app:install "$APPID" || error_msg "Could not re-enable $APPID"
     done
-
-    MEM_DIST=$($OCC config:system:get --default-value "NOT_SET" memcache.distributed)
-    if [ "${MEM_DIST}" = "NOT_SET" ]; then
-      # some code might require a set distributed memcache
-      # this block is safe to remove with Nextcloud 22
-      $OCC config:system:set --value "\OC\Memcache\APCu" memcache.distributed
-    fi
 fi
 
 # Recreate the htaccess on both install and update
