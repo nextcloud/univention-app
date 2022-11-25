@@ -1,6 +1,6 @@
 # Nextcloud - Dockerfile
 #
-# @copyright Copyright (c) 2021 Arthur Schiwon (blizzz@arthur-schiwon.de)
+# @copyright Copyright (c) 2022 Arthur Schiwon (blizzz@arthur-schiwon.de)
 # @copyright Copyricht (c) 2018 Nico Gulden (gulden@univention.de)
 # @copyright Copyright (c) 2017 Lukas Reschke (lukas@statuscode.ch)
 # @copyright Copyright (c) 2016 Marcos Zuriaga Miguel (wolfi@wolfi.es)
@@ -20,14 +20,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-24.0.11.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v6.3.5/richdocuments-v6.3.5.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v7.7.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/prereleases/nextcloud-25.0.2rc1.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v7.0.1/richdocuments-v7.0.1.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v7.6.8/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
-COPY resources/60-nextcloud.ini /etc/php/7.4/apache2/conf.d/
-COPY resources/60-nextcloud.ini /etc/php/7.4/cli/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/8.1/apache2/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/8.1/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
@@ -60,6 +60,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php-pgsql \
 	php-pear \
 	php-gmp \
+    php-smbclient \
 	wget \
 	pwgen \
 	sudo \
@@ -68,14 +69,6 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	libsmbclient-dev \
 	unattended-upgrades \
 	unzip
-
-RUN wget -O /tmp/libsmbclient-php.zip https://github.com/eduardok/libsmbclient-php/archive/master.zip && \
-    unzip /tmp/libsmbclient-php.zip -d /tmp && \
-    cd /tmp/libsmbclient-php-master && \
-    phpize && ./configure && make && sudo make install && \
-    echo 'extension="smbclient.so"' >> /etc/php/7.4/cli/conf.d/60-nextcloud.ini && \
-    echo 'extension="smbclient.so"' >> /etc/php/7.4/apache2/conf.d/60-nextcloud.ini && \
-    apt purge -y php-dev unzip
 
 RUN apt autoremove -y
 
