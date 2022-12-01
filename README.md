@@ -68,8 +68,6 @@ If a config.php exists, it will be copied from the permanent app folder to the u
 
 ### 4. setup
 
-`occ` is made executable.
-
 Checks are done whether Nextcloud is installed and being upgraded.
 
 On install
