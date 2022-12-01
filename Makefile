@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 app_name=nextcloud
-app_version=25.0.1-93
+app_version=25.0.1-94
 app_upgrade_from=24.0.7-1
 
 ucs_version=4.4
