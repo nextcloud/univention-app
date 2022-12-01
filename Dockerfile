@@ -22,7 +22,7 @@
 
 FROM ubuntu:22.04
 
-ADD https://download.nextcloud.com/server/prereleases/nextcloud-25.0.2rc1.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://download.nextcloud.com/server/prereleases/nextcloud-25.0.2rc2.tar.bz2 /root/nextcloud.tar.bz2
 ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v7.0.1/richdocuments-v7.0.1.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v7.6.8/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
