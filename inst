@@ -213,11 +213,11 @@ nextcloud_update_ldap_backend_password_if_necessary() {
         return
     fi
 
-    LDAP_CON_STATE=$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ ldap:test-config $CONFIGID)
+    LDAP_CON_STATE=$(univention-app shell nextcloud sudo -u www-data php /var/www/html/occ ldap:test-config $CONFIGID)
     if [[ "$LDAP_CON_STATE" != "The configuration is valid and the connection could be established!" ]] ; then
         echo "Updating LDAP bind credentials"
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ ldap:set-config "$CONFIGID" ldapAgentName "$NC_LDAP_BIND_DN"
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ ldap:set-config "$CONFIGID" ldapAgentPassword "$NC_LDAP_BIND_PW"
+        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ ldap:set-config "$CONFIGID" ldapAgentName "$NC_LDAP_BIND_DN"
+        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ ldap:set-config "$CONFIGID" ldapAgentPassword "$NC_LDAP_BIND_PW"
     fi
 }
 
@@ -276,12 +276,12 @@ nextcloud_configure_saml() {
         /-END CERTIFICATE-/q                            # bailing out soon as the cert end seen
     ')
 
-    SETCMD="univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set user_saml"
+    SETCMD="univention-app shell nextcloud sudo -u www-data php /var/www/html/occ config:app:set user_saml"
     $SETCMD type --value="saml"
     $SETCMD general-require_provisioned_account --value="1"
     $SETCMD general-allow_multiple_user_back_ends --value="1"
 
-    univention-app shell nextcloud sudo -u www-data /var/www/html/occ saml:config:set \
+    univention-app shell nextcloud sudo -u www-data php /var/www/html/occ saml:config:set \
         --idp-x509cert="${IDP_CERT}" \
         --general-uid_mapping="uid" \
         --idp-singleLogoutService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SingleLogoutService.php" \
@@ -337,10 +337,10 @@ detect_collabora () {
     echo "Check for richdocuments app"
     if [ "$(ucr get appcenter/apps/collabora/status)" = "installed" ] || [ "$(ucr get appcenter/apps/collabora-online/status)" = "installed" ] ; then
         NC_OFFICE_SUITE=collabora
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable richdocuments
+        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ app:enable richdocuments
         occCode=$?
-        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] ; then
-            univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set richdocuments wopi_url --value="https://$FQDN/"
+        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data php /var/www/html/occ config:app:get richdocuments wopi_url)" = "" ] ; then
+            univention-app shell nextcloud sudo -u www-data php /var/www/html/occ config:app:set richdocuments wopi_url --value="https://$FQDN/"
         fi
     fi
 }
@@ -353,10 +353,10 @@ detect_onlyoffice () {
     echo "Check for onlyoffice app"
     if [ "$(ucr get appcenter/apps/onlyoffice-ds/status)" = "installed" ] || [ "$(ucr get appcenter/apps/onlyoffice-ds-integration/status)" = "installed" ] ; then
         NC_OFFICE_SUITE=onlyoffice
-        univention-app shell nextcloud sudo -u www-data /var/www/html/occ app:enable onlyoffice
+        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ app:enable onlyoffice
         occCode=$?
-        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
-            univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
+        if [ ${occCode} -eq 0 ] && [ "$(univention-app shell nextcloud sudo -u www-data php /var/www/html/occ config:app:get onlyoffice DocumentServerUrl)" = "" ] ; then
+            univention-app shell nextcloud sudo -u www-data php /var/www/html/occ config:app:set onlyoffice DocumentServerUrl --value="https://$FQDN/onlyoffice-documentserver"
         fi
     fi
 }

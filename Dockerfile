@@ -87,7 +87,6 @@ RUN cd /root/ && \
 	rm -Rf /root/nextcloud && \
 	rm "nextcloud.tar.bz2" && \
 	cd /var/www/html/ && \
-	chmod +x occ && \
 	chown -R www-data /var/www/html
 
 RUN rm -Rf /var/www/html/apps/updatenotification

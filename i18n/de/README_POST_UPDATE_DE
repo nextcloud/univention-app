@@ -10,7 +10,7 @@
 <h3>Fehlende Datenbank-Indizes</h3>
 <p>Diese Meldung erscheint nach einem Upgrade von Nextcloud 13. Die Datenbankstruktur hat sich leicht geändert und neue Indizes sind hinzugefügt worden. Theoretisch könnten diese während dem Upgrade-Prozess hinzugefügt werden. Weil dies jedoch insbesondere bei großen Datenbeständen zeitintensiv ist, wird es in dem Rahmen nicht durchgeführt. Die Indizes sind nicht kritisch für die Funktionstüchtigkeit der Nextcloud, verbessern aber die Geschwindigkeit bei relevanten Operationen.</p>
 <p>Folgender Befehl, auszuführen auf dem Host, fügt die Indizes hinzu:</p>
-<p><code>univention-app shell nextcloud sudo -u www-data /var/www/html/occ db:add-missing-indices</code></p>
+<p><code>univention-app shell nextcloud sudo -u www-data php /var/www/html/occ db:add-missing-indices</code></p>
 <p>Es ist nicht notwendig Nextcloud in den Wartungsmodus zu schalten, diese Aktion kann während des Produktivbetriebs durchgeführt werden.</p>
 <h2>Mailserver Konfiguration</h2>
 <p>Sofern die Einstellungen zum Mailserver noch nicht vorgenommen wurden, empfiehlt es sicht diese als Administrator in den Admineinstellungen einzurichten.</p>
