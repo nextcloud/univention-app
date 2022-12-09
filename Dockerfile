@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
 ADD https://download.nextcloud.com/server/prereleases/nextcloud-25.0.2rc2.tar.bz2 /root/nextcloud.tar.bz2
 ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v7.0.1/richdocuments-v7.0.1.tar.gz /root/richdocuments.tar.gz
@@ -33,6 +33,13 @@ COPY resources/000-default.conf /etc/apache2/sites-enabled/
 # uncomment and set to true if a patch nededs to be applied
 #COPY resources/19439.patch /root/nc.patch
 ENV NC_IS_PATCHED false
+
+RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+	apt-get -y update && apt-get -y full-upgrade && apt-get install -y \
+    software-properties-common
+
+RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -70,11 +77,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	unattended-upgrades \
 	unzip
 
-RUN apt autoremove -y
-
 COPY resources/ldap.conf /etc/ldap/
-
-RUN apt clean
 
 RUN a2enmod headers
 RUN a2enmod rewrite
@@ -102,6 +105,10 @@ RUN cd /var/www/html/apps && \
     tar -xf /root/onlyoffice.tar.gz -C onlyoffice --strip-components=1 && \
     chown -R www-data:nogroup /var/www/html/apps/onlyoffice && \
     rm /root/onlyoffice.tar.gz
+
+RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+	apt purge -y software-properties-common && apt autoremove -y && apt clean
 
 # uncomment and adjust following block if a patch needs to be applied
 #RUN cd /var/www/html/ && \
