@@ -47,27 +47,27 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	apache2 \
 	cron \
 	curl \
-	libapache2-mod-php \
+	libapache2-mod-php8.1 \
 	libfuse2 \
 	patch \
-	php \
-	php-bcmath \
-	php-curl \
-	php-dev \
-	php-dompdf \
-	php-gd \
-	php-imagick \
-	php-intl \
-	php-mbstring \
-	php-xml \
-	php-zip \
-	php-apcu \
-	php-ldap \
-	php-oauth \
-	php-pgsql \
-	php-pear \
-	php-gmp \
-    php-smbclient \
+	php8.1 \
+	php8.1-bcmath \
+	php8.1-curl \
+	php8.1-dev \
+	php8.1-dompdf \
+	php8.1-gd \
+	php8.1-imagick \
+	php8.1-intl \
+	php8.1-mbstring \
+	php8.1-xml \
+	php8.1-zip \
+	php8.1-apcu \
+	php8.1-ldap \
+	php8.1-oauth \
+	php8.1-pgsql \
+	php8.1-pear \
+	php8.1-gmp \
+	php8.1-smbclient \
 	wget \
 	pwgen \
 	sudo \
