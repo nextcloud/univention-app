@@ -54,7 +54,6 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php8.1-bcmath \
 	php8.1-curl \
 	php8.1-dev \
-	php8.1-dompdf \
 	php8.1-gd \
 	php8.1-imagick \
 	php8.1-intl \
@@ -65,7 +64,6 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	php8.1-ldap \
 	php8.1-oauth \
 	php8.1-pgsql \
-	php8.1-pear \
 	php8.1-gmp \
 	php8.1-smbclient \
 	wget \
