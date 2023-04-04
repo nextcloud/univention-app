@@ -16,7 +16,7 @@ function main() {
     echo $DOWNLOADLINK
   done
 
-
+  sed -i -E "s/app_version=[0-9]{2,3}\.[0-9]\.[0-9]{1,2}-1/app_version=${TARGET_VERSION}-0/" Makefile
 }
 
 function get_app_download_uri() {
