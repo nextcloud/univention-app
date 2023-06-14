@@ -255,7 +255,7 @@ nextcloud_add_Administrator_to_admin_group() {
 }
 
 nextcloud_urlEncode() {
-  python -c 'import urllib, sys; print urllib.quote(sys.argv[1], sys.argv[2])' \
+  python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], sys.argv[2]))' \
     "$1" ""
 }
 
