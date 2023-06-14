@@ -21,7 +21,7 @@ app_name=nextcloud
 app_version=24.0.11-0
 app_upgrade_from=23.0.6-0
 
-ucs_version=4.4
+ucs_version=5.0
 
 docker_repo=nextcloud
 docker_login=`cat ~/.docker-account-user`
@@ -59,7 +59,7 @@ push-files:
 		i18n/en/README_POST_UPDATE_EN \
 		i18n/de/README_POST_UPDATE_DE
 	univention-appcenter-control set --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
-		--json '{"DockerImage": "ghcr.io/nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "4.4-0", "SupportedUCSVersions": "4.4-0, 5.0-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
+		--json '{"DockerImage": "ghcr.io/nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "5.0-0", "SupportedUCSVersions": "5.0-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
 
 .PHONY: docker
 docker:
