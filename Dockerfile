@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ADD https://download.nextcloud.com/server/releases/nextcloud-25.0.8.tar.bz2 /root/nextcloud.tar.bz2
 ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v7.1.4/richdocuments-v7.1.4.tar.gz /root/richdocuments.tar.gz
@@ -36,10 +36,7 @@ ENV NC_IS_PATCHED false
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-	apt-get -y update && apt-get -y full-upgrade && apt-get install -y \
-    software-properties-common
-
-RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php
+	apt-get -y update && apt-get -y full-upgrade
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -47,25 +44,25 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	apache2 \
 	cron \
 	curl \
-	libapache2-mod-php8.1 \
+	libapache2-mod-php \
 	libfuse2 \
 	patch \
-	php8.1 \
-	php8.1-bcmath \
-	php8.1-curl \
-	php8.1-dev \
-	php8.1-gd \
-	php8.1-imagick \
-	php8.1-intl \
-	php8.1-mbstring \
-	php8.1-xml \
-	php8.1-zip \
-	php8.1-apcu \
-	php8.1-ldap \
-	php8.1-oauth \
-	php8.1-pgsql \
-	php8.1-gmp \
-	php8.1-smbclient \
+	php \
+	php-bcmath \
+	php-curl \
+	php-dev \
+	php-gd \
+	php-imagick \
+	php-intl \
+	php-mbstring \
+	php-xml \
+	php-zip \
+	php-apcu \
+	php-ldap \
+	php-oauth \
+	php-pgsql \
+	php-gmp \
+	php-smbclient \
 	wget \
 	pwgen \
 	sudo \
@@ -106,7 +103,7 @@ RUN cd /var/www/html/apps && \
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-	apt purge -y software-properties-common && apt autoremove -y && apt clean
+	apt autoremove -y && apt clean
 
 # uncomment and adjust following block if a patch needs to be applied
 #RUN cd /var/www/html/ && \
