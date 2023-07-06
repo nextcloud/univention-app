@@ -2,15 +2,15 @@
 <p>In the <strong>Security & setup warnings</strong> section it is likely that some messages are shown, on how to improve the setup. The items mentioned cannot be done by the Nextcloud integration for UCS, instead the admin needs to decide whether actions should be taken.</p>
 <h3>"Strict-Transport-Security" HTTP header</h3>
 <p>To harden the service against man-in-the-middle attacks, this mechanism can be enabled. The SSL termination happens on the reverse proxy, which typically is an Apache2 web server on the host. The configuration for the domain(s) Nextcloud is running on would need to be extended with an HTTP header. Applying the changes affects all services running within this domain.</p>
-<p>This <a href="https://docs.nextcloud.com/server/24/admin_manual/installation/harden_server.html#enable-http-strict-transport-security">documentation page explains how to configure HSTS</a>. The <strong>includeSubDomains</strong> is necessary.</p>
+<p>This <a href="https://docs.nextcloud.com/server/25/admin_manual/installation/harden_server.html#enable-http-strict-transport-security">documentation page explains how to configure HSTS</a>. The <strong>includeSubDomains</strong> is necessary.</p>
 <h3>Not able to resolve "/.well-known/caldav|carddav"</h3>
-<p>Discovery of addressbook and calendar services can be made easier for such clients, by providing well-known URLs that redirect to the actual location of that service. This check tests whether the top-level domain has the given URLs present. Again, to resolve this, the web server configuration of the host needs to be adjusted, <a href="https://docs.nextcloud.com/server/24/admin_manual/issues/general_troubleshooting.html#service-discovery">according to this documentation</a>.<p>
+<p>Discovery of addressbook and calendar services can be made easier for such clients, by providing well-known URLs that redirect to the actual location of that service. This check tests whether the top-level domain has the given URLs present. Again, to resolve this, the web server configuration of the host needs to be adjusted, <a href="https://docs.nextcloud.com/server/25/admin_manual/issues/general_troubleshooting.html#service-discovery">according to this documentation</a>.<p>
 <p>It is only possible to link to one service provider on a domain. Having the URLs present is not crucial for a working Nextcloud setup, but improves the convenience for some end users.</p>
 <p>The check was introduced within the Nextcloud 13 series. Thus in the earlier version the hint was not shown.</p>
 <h3>Missing database indices</h3>
 <p>This message would appear after an upgrade from Nextcloud 13. The database structure changed a bit, and new indices were introduced. Theoretically, Nextcloud could add them within the upgrade process, however refrains from it as it can take a significant amount of time. The indices are not crucial for the functioning of Nextcloud, but do increase database performance in corresponding queries.</p>
 <p>To add the indices run the following command from your host:</p>
-<p><code>univention-app shell nextcloud sudo -u www-data /var/www/html/occ db:add-missing-indices</code></p>
+<p><code>univention-app shell nextcloud sudo -u www-data php /var/www/html/occ db:add-missing-indices</code></p>
 <p>It is not necessary to put Nextcloud into maintenance mode, this action can run during production.</p>
 <h2>Mail server configuration</h2>
 <p>If the mail server configuration was not done by hand, it is recommended to set it up as Administrator in the admin settings.</p>

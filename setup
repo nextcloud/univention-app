@@ -61,14 +61,14 @@ mv "$NC_PERMCONFDIR/ucs.crt" /usr/local/share/ca-certificates/ucs.crt 2>&1 | err
 update-ca-certificates 2>&1 | error_msg
 
 cd /var/www/html
-if [ ! -x occ ]; then
-	error_msg "/var/www/html/occ missing or not executable – was the docker container modified manually?"
+if [ ! -f occ ]; then
+	error_msg "/var/www/html/occ missing – was the docker container modified manually?"
 	exit 21
 fi
 
-OCC="sudo -u www-data ./occ"
+OCC="sudo -u www-data php /var/www/html/occ"
 
-NC_IS_INSTALLED=`$OCC status | grep "installed: true" -c`
+NC_IS_INSTALLED=$($OCC status | grep "installed: true" -c)
 NC_IS_UPGRADE=1
 
 if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
@@ -77,7 +77,7 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
     NC_ADMIN_PWD_FILE="$NC_PERMCONFDIR/admin.secret"
     NC_DB_TYPE="pgsql"
     NC_LOCAL_ADMIN="nc_admin"
-    NC_LOCAL_ADMIN_PWD=`pwgen -y 30 1`
+    NC_LOCAL_ADMIN_PWD=$(pwgen -y 30 1)
     echo "$NC_LOCAL_ADMIN_PWD" > "$NC_ADMIN_PWD_FILE"
     chmod 600 "$NC_ADMIN_PWD_FILE"
 
@@ -103,7 +103,7 @@ if [ "$NC_IS_INSTALLED" -eq 0 ] ; then
     fi
 fi
 
-UPGRADE_LOGFILE="/var/log/nextcloud-upgrade_"`date +%y_%m_%d`".log"
+UPGRADE_LOGFILE="/var/log/nextcloud-upgrade_"$(date +%y_%m_%d)".log"
 $OCC check
 $OCC status
 $OCC app:list
@@ -111,12 +111,11 @@ $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
 error_msg "The upgrade log is written to $UPGRADE_LOGFILE within the nextcloud container"
 
 # basic Nextcloud configuration
-eval "`cat \"$NC_UCR_FILE\"`"
+eval "$(cat \"$NC_UCR_FILE\")"
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set updatechecker --type=boolean --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set upgrade.disable-web --type=boolean --value="true"
     $OCC config:system:set --value "\OC\Memcache\APCu" memcache.local
-    $OCC config:system:set --value "\OC\Memcache\APCu" memcache.distributed
     $OCC config:system:set overwriteprotocol --value="https"
     $OCC config:system:set overwritewbroot --value="/nextcloud"
     $OCC config:system:set overwrite.cli.url --value="https://$NC_UCR_DOMAIN/nextcloud"
@@ -151,13 +150,6 @@ else
     for APPID in "${DISABLED_APPS[@]}" ; do
         $OCC app:enable "$APPID" || $OCC app:install "$APPID" || error_msg "Could not re-enable $APPID"
     done
-
-    MEM_DIST=$($OCC config:system:get --default-value "NOT_SET" memcache.distributed)
-    if [ "${MEM_DIST}" = "NOT_SET" ]; then
-      # some code might require a set distributed memcache
-      # this block is safe to remove with Nextcloud 22
-      $OCC config:system:set --value "\OC\Memcache\APCu" memcache.distributed
-    fi
 fi
 
 # Recreate the htaccess on both install and update
