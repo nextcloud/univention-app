@@ -141,7 +141,7 @@ if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC db:convert-filecache-bigint -n
     $OCC db:add-missing-indices
 
-    # ensure that all apps are up to date on installation (e.g. files_rightclick on 17.0.1)
+    # ensure that all apps are up to date on installation
     $OCC app:update --all
 
 else
