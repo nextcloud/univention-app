@@ -22,8 +22,8 @@
 
 FROM ubuntu:22.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-27.1.5.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.2.3/richdocuments-v8.2.3.tar.gz /root/richdocuments.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-27.1.6.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.2.4/richdocuments-v8.2.4.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v8.2.4/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/8.1/apache2/conf.d/
