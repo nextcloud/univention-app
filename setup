@@ -111,7 +111,8 @@ $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
 error_msg "The upgrade log is written to $UPGRADE_LOGFILE within the nextcloud container"
 
 # basic Nextcloud configuration
-eval "$(cat \"$NC_UCR_FILE\")"
+# shellcheck disable=SC1090
+source "${NC_UCR_FILE}"
 if [ "$NC_IS_UPGRADE" -eq 0 ] ; then
     $OCC config:system:set updatechecker --type=boolean --value="false"    # this is handled via UCS AppCenter
     $OCC config:system:set upgrade.disable-web --type=boolean --value="true"
