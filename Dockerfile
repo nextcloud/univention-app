@@ -20,14 +20,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-28.0.14.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.3.13/richdocuments-v8.3.13.tar.gz /root/richdocuments.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-29.0.11.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.4.9/richdocuments-v8.4.9.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.5.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
-COPY resources/60-nextcloud.ini /etc/php/8.1/apache2/conf.d/
-COPY resources/60-nextcloud.ini /etc/php/8.1/cli/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/8.3/apache2/conf.d/
+COPY resources/60-nextcloud.ini /etc/php/8.3/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
@@ -45,7 +45,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	cron \
 	curl \
 	libapache2-mod-php \
-	libfuse2 \
+	libfuse2t64 \
 	patch \
 	php \
 	php-bcmath \
@@ -67,7 +67,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	pwgen \
 	sudo \
 	lbzip2 \
-	libmagickcore-6.q16-6-extra \
+	libmagickcore-6.q16-7-extra \
 	libsmbclient-dev \
 	unattended-upgrades \
 	unzip
