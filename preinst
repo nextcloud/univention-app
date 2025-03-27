@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+. /usr/share/univention-lib/base.sh
+
 NC_PERMCONFDIR="/var/lib/univention-appcenter/apps/nextcloud/data/integration"
 
 NC_UCR_FILE="$NC_PERMCONFDIR/ucr"
@@ -28,8 +30,8 @@ if [ ! -d "$NC_PERMCONFDIR" ]; then
 fi
 
 cat >"$NC_UCR_FILE" <<EOL
-export NC_HOST_IPS="`ucr dump | grep interfaces | grep address | cut -d ":" -f2`"
-export NC_TRUSTED_PROXY_IP="`ucr get docker/daemon/default/opts/bip | cut -d "/" -f 1`"
+export NC_HOST_IPS="$(get_default_ip_address)"
+export NC_TRUSTED_PROXY_IP="$(ucr get docker/daemon/default/opts/bip | cut -d "/" -f 1)"
 EOL
 
 chmod +x "$NC_UCR_FILE"
