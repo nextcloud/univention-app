@@ -265,7 +265,12 @@ nextcloud_configure_saml() {
     $SETCMD general-require_provisioned_account --value="1"
     $SETCMD general-allow_multiple_user_back_ends --value="1"
 
+
     if ! ucs_needsKeycloakSetup "$@"; then
+        if dpkg --compare-versions "${version_version}" gt "5.0"; then
+            echo "Skipping SAML configuration. No IDP configured for use."
+            return
+        fi
         # SimpleSAMLphp (UCS 5.0 or lower)
         udm saml/serviceprovider create "$@" \
             --ignore_exists \
@@ -289,7 +294,7 @@ nextcloud_configure_saml() {
             --idp-singleLogoutService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SingleLogoutService.php" \
             --idp-singleSignOnService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SSOService.php" \
             --idp-entityId="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/metadata.php" \
-            1
+            1 || die "Could not configure simpleSAMLphp as Nextcloud Identity Provider"
     else
         IDP_CERT=$(univention-keycloak "$@" saml/idp/cert get --as-pem --output /dev/stdout)
         SSO_URL="$(univention-keycloak "$@" get-keycloak-base-url)"
@@ -299,12 +304,12 @@ nextcloud_configure_saml() {
             --idp-singleLogoutService.url="$SSO_URL/realms/ucs/protocol/saml" \
             --idp-singleSignOnService.url="$SSO_URL/realms/ucs/protocol/saml" \
             --idp-entityId="$SSO_URL/realms/ucs" \
-            1
+            1 || die "Could not configure Keycloak as Nextcloud Identity Provider"
 
         # Keycloak (starting with UCS 5.1 or optionally manually migrated UCS 5.0)
         univention-keycloak "$@" saml/sp create \
             --metadata-url="https://$hostname.$domainname/nextcloud/apps/user_saml/saml/metadata" \
-            --role-mapping-single-value || die
+            --role-mapping-single-value || die "Could not configure Nextcloud Service Provider as Keycloak"
     fi
 }
 
@@ -317,16 +322,18 @@ nextcloud_modify_users() {
 
     SP_DN=$(univention-ldapsearch -LLL SAMLServiceProviderIdentifier=https://$hostname.$domainname/nextcloud/apps/user_saml/saml/metadata dn | cut -d ' ' -f 2)
 
+    has_simplesamlphp=false
+    if ! ucs_needsKeycloakSetup "$@" && dpkg --compare-versions "${version_version}" lt "5.1"; then
+        has_simplesamlphp=true
+    fi
+
     for dn in $(udm users/user list "$@" --filter "$nextcloud_ucs_modifyUsersFilter" | sed -ne 's/^DN: //p') ; do
         echo "modifying $dn .."
         udm users/user modify "$@" --dn "$dn" \
             --set nextcloudEnabled="$nextcloud_ucs_userEnabled" \
             --set nextcloudQuota="$nextcloud_ucs_userQuota"
 
-        if ! ucs_needsKeycloakSetup "$@"; then
-            udm users/user modify "$@" --dn "$dn" \
-                --append serviceprovider="$SP_DN"
-        fi
+        [ "$has_simplesamlphp" = "true" ] && udm users/user modify "$@" --dn "$dn" --append serviceprovider="$SP_DN"
     done
 }
 
