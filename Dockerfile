@@ -79,10 +79,8 @@ RUN a2enmod rewrite
 
 RUN cd /root/ && \
 	tar -xf "nextcloud.tar.bz2" && \
-	mv /root/nextcloud/* /var/www/html/ && \
-	mv /root/nextcloud/.htaccess /var/www/html/ && \
-	mv /root/nextcloud/.user.ini /var/www/html/ && \
-	rm -Rf /root/nextcloud && \
+    rm -Rf /var/www/html && \
+	mv /root/nextcloud /var/www/html && \
 	rm "nextcloud.tar.bz2" && \
 	cd /var/www/html/ && \
 	chmod +x occ && \
