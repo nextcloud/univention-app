@@ -151,6 +151,8 @@ else
     for APPID in "${DISABLED_APPS[@]}" ; do
         $OCC app:enable "$APPID" || $OCC app:install "$APPID" || error_msg "Could not re-enable $APPID"
     done
+
+
 fi
 
 # Recreate the htaccess on both install and update
