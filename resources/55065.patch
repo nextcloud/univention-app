@@ -1,0 +1,40 @@
+From ac6653ec5b9746c6695fc46dcee81379af048220 Mon Sep 17 00:00:00 2001
+From: Arthur Schiwon <blizzz@arthur-schiwon.de>
+Date: Fri, 12 Sep 2025 11:48:28 +0200
+Subject: [PATCH] fix(Apps): fix install command check on existing apps
+
+- AppManager::isInstalled() is misleading, as it checks only whether it is
+  enabled. But an app might not be present in some edge cases.
+- AppManager::getAppPath() does however only check whether an app dir is
+  present, independent of the enabled-state.
+
+Signed-off-by: Arthur Schiwon <blizzz@arthur-schiwon.de>
+---
+ core/Command/App/Install.php | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/core/Command/App/Install.php b/core/Command/App/Install.php
+index aa263a8f3bfc9..f7fa92208eaaa 100644
+--- a/core/Command/App/Install.php
++++ b/core/Command/App/Install.php
+@@ -9,6 +9,7 @@
+ namespace OC\Core\Command\App;
+ 
+ use OC\Installer;
++use OCP\App\AppPathNotFoundException;
+ use OCP\App\IAppManager;
+ use Symfony\Component\Console\Command\Command;
+ use Symfony\Component\Console\Input\InputArgument;
+@@ -58,9 +59,11 @@ protected function execute(InputInterface $input, OutputInterface $output): int
+ 		$appId = $input->getArgument('app-id');
+ 		$forceEnable = (bool) $input->getOption('force');
+ 
+-		if ($this->appManager->isInstalled($appId)) {
++		try {
++			$this->appManager->getAppPath($appId);
+ 			$output->writeln($appId . ' already installed');
+ 			return 1;
++		} catch (AppPathNotFoundException) {
+ 		}
+ 
+ 		try {
