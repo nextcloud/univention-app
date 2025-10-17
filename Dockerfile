@@ -22,17 +22,17 @@
 
 FROM ubuntu:24.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-29.0.11.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.4.9/richdocuments-v8.4.9.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.5.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-30.0.15.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.5.10/richdocuments-v8.5.10.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.10.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/8.3/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/8.3/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
-#COPY resources/19439.patch /root/nc.patch
-ENV NC_IS_PATCHED false
+COPY resources/55065.patch /root/nc.patch
+ENV NC_IS_PATCHED true
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -79,10 +79,8 @@ RUN a2enmod rewrite
 
 RUN cd /root/ && \
 	tar -xf "nextcloud.tar.bz2" && \
-	mv /root/nextcloud/* /var/www/html/ && \
-	mv /root/nextcloud/.htaccess /var/www/html/ && \
-	mv /root/nextcloud/.user.ini /var/www/html/ && \
-	rm -Rf /root/nextcloud && \
+    rm -Rf /var/www/html && \
+	mv /root/nextcloud /var/www/html && \
 	rm "nextcloud.tar.bz2" && \
 	cd /var/www/html/ && \
 	chmod +x occ && \
@@ -107,9 +105,9 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	apt autoremove -y && apt clean
 
 # uncomment and adjust following block if a patch needs to be applied
-#RUN cd /var/www/html/ && \
-#    patch -p1 -t < /root/nc.patch && \
-#    rm /root/nc.patch
+RUN cd /var/www/html/ && \
+    patch -p1 -t < /root/nc.patch && \
+    rm /root/nc.patch
 
 EXPOSE 80
 
