@@ -22,16 +22,16 @@
 
 FROM ubuntu:24.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-30.0.15.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.5.10/richdocuments-v8.5.10.tar.gz /root/richdocuments.tar.gz
-ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.10.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-31.0.9.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.7.6/richdocuments-v8.7.6.tar.gz /root/richdocuments.tar.gz
+ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.11.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/8.3/apache2/conf.d/
 COPY resources/60-nextcloud.ini /etc/php/8.3/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
-COPY resources/55065.patch /root/nc.patch
+COPY resources/55831.patch /root/nc.patch
 ENV NC_IS_PATCHED true
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
@@ -111,4 +111,4 @@ RUN cd /var/www/html/ && \
 
 EXPOSE 80
 
-ENTRYPOINT /usr/sbin/entrypoint.sh
+ENTRYPOINT ["/usr/sbin/entrypoint.sh"]
