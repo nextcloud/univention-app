@@ -22,8 +22,8 @@
 
 FROM ubuntu:24.04
 
-ADD https://download.nextcloud.com/server/releases/nextcloud-31.0.9.tar.bz2 /root/nextcloud.tar.bz2
-ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v8.7.6/richdocuments-v8.7.6.tar.gz /root/richdocuments.tar.gz
+ADD https://download.nextcloud.com/server/releases/nextcloud-32.0.3.tar.bz2 /root/nextcloud.tar.bz2
+ADD https://github.com/nextcloud-releases/richdocuments/releases/download/v9.0.2/richdocuments-v9.0.2.tar.gz /root/richdocuments.tar.gz
 ADD https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v9.11.0/onlyoffice.tar.gz /root/onlyoffice.tar.gz
 COPY resources/entrypoint.sh /usr/sbin/
 COPY resources/60-nextcloud.ini /etc/php/8.3/apache2/conf.d/
@@ -31,8 +31,8 @@ COPY resources/60-nextcloud.ini /etc/php/8.3/cli/conf.d/
 COPY resources/000-default.conf /etc/apache2/sites-enabled/
 
 # uncomment and set to true if a patch nededs to be applied
-COPY resources/55831.patch /root/nc.patch
-ENV NC_IS_PATCHED true
+#COPY resources/55831.patch /root/nc.patch
+ENV NC_IS_PATCHED false
 
 RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
@@ -105,9 +105,9 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	apt autoremove -y && apt clean
 
 # uncomment and adjust following block if a patch needs to be applied
-RUN cd /var/www/html/ && \
-    patch -p1 -t < /root/nc.patch && \
-    rm /root/nc.patch
+#RUN cd /var/www/html/ && \
+#    patch -p1 -t < /root/nc.patch && \
+#    rm /root/nc.patch
 
 EXPOSE 80
 
