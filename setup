@@ -106,6 +106,7 @@ fi
 UPGRADE_LOGFILE="/var/log/nextcloud-upgrade_"$(date +%y_%m_%d)".log"
 $OCC check
 $OCC status
+$OCC config:list | jq -r '.apps | to_entries | map(select(.value.enabled != "no")) | .[].key' | xargs -I {} sh -c "$OCC app:install {} || true"
 $OCC app:list
 $OCC upgrade 2>&1>> "$UPGRADE_LOGFILE"
 error_msg "The upgrade log is written to $UPGRADE_LOGFILE within the nextcloud container"

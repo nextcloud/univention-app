@@ -44,6 +44,7 @@ RUN /bin/bash -c "export DEBIAN_FRONTEND=noninteractive" && \
 	apache2 \
 	cron \
 	curl \
+	jq \
 	libapache2-mod-php \
 	libfuse2t64 \
 	patch \
