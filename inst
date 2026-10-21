@@ -40,6 +40,7 @@ ERROR_FILE=$(getarg "--error-file")
 . /usr/share/univention-join/joinscripthelper.lib
 . /usr/share/univention-appcenter/joinscripthelper.sh
 . /usr/share/univention-lib/ldap.sh
+. /usr/share/univention-lib/ucr.sh
 
 joinscript_init
 eval "$(ucr shell)"
@@ -52,6 +53,7 @@ IS_UPDATE=false
 NC_LDAP_BIND_DN="$appcenter_apps_nextcloud_hostdn"
 NC_LDAP_BIND_PW_FILE="$(joinscript_container_file /etc/machine.secret)"
 NC_LDAP_BIND_PW="$(< $NC_LDAP_BIND_PW_FILE)"
+NC_OIDC_SECRET_FILE="$(joinscript_container_file /etc/client.secret)"
 NC_ADDITIONAL_CURL_ARGS=
 
 NC_OFFICE_SUITE="oo_community" # fallback
@@ -67,6 +69,7 @@ nextcloud_main() {
     fi
     nextcloud_ensure_ucr
     nextcloud_attempt_memberof_support
+    nextcloud_configure_oidc "$@"
     nextcloud_configure_saml "$@"
     nextcloud_configure_ldap_backend
     nextcloud_modify_users "$@"
@@ -259,7 +262,67 @@ nextcloud_urlEncode() {
     "$1" ""
 }
 
+nextcloud_configure_oidc() {
+    if is_ucr_true appcenter/apps/nextcloud/disable-oidc-login; then
+        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ app:disable user_oidc || true
+        return;
+    fi
+    if ! ucs_needsKeycloakSetup "$@"; then
+        return;
+    fi
+
+    if [ ! -e "$NC_OIDC_SECRET_FILE" ]; then
+        create_machine_password > "$NC_OIDC_SECRET_FILE"
+    fi
+
+    CLIENT_SECRET="$(< $NC_OIDC_SECRET_FILE)"
+    NC_OIDC_BASE_URL="https://$hostname.$domainname/nextcloud"
+    CLIENT_ID="$NC_OIDC_BASE_URL/"
+    univention-keycloak "$@" oidc/rp create \
+        --client-secret "$CLIENT_SECRET" \
+        --description "Nextcloud UCS App OIDC client" \
+        --name "$CLIENT_ID" \
+        --app-url "$NC_OIDC_BASE_URL" \
+        --host-fqdn "$hostname.$domainname" \
+        --redirect-uri "$NC_OIDC_BASE_URL/*" \
+        --request-uris "$NC_OIDC_BASE_URL/apps/user_oidc/*" \
+        --frontchannel-logout-url "$NC_OIDC_BASE_URL/apps/user_oidc/sls" \
+        --backchannel-logout-url "$NC_OIDC_BASE_URL/apps/user_oidc/sls" \
+        --post-logout-redirect-uris "$NC_OIDC_BASE_URL" \
+        --always-display-in-console \
+        "$CLIENT_ID" || die "Could not create Nextloud Relying Party"
+        # [--web-origins WEB_ORIGINS]
+        # [--direct-access-grants]
+        # [--allow-implicit-flow]
+        # [--access-token-lifespan ACCESS_TOKEN_LIFESPAN]
+        # [--service-accounts-enabled]
+        # [--no-frontchannel-logout]
+        # [--auth-browser-flow AUTH_BROWSER_FLOW]
+        # [--add-audience-mapper]
+        # [--access-token-audience ACCESS_TOKEN_AUDIENCE]
+        # [--id-token-audience ID_TOKEN_AUDIENCE]
+        # [--policy-url POLICY_URL]
+        # [--logo-url LOGO_URL]
+        # [--tos-url TOS_URL]
+        # [--pkce-code-challenge-method {,plain,S256}]
+        # [--default-scopes DEFAULT_SCOPES]
+        # [--optional-scopes OPTIONAL_SCOPES]
+        # [--consent CONSENT]
+
+    univention-app shell nextcloud sudo -u www-data php /var/www/html/occ app:enable user_oidc || true
+    univention-app shell nextcloud sudo -u www-data php /var/www/html/occ user_oidc:provider \
+        -c "$CLIENT_ID" \
+        -s "$CLIENT_SECRET" \
+        -d "$(univention-keycloak "$@" get-keycloak-base-url)/realms/ucs/.well-known/openid-configuration" \
+        "${appcenter_apps_nextcloud_oidc_identifier:-UCS}" || die "Could not configure Keycloak as Nextcloud OpenID Provider"
+}
+
 nextcloud_configure_saml() {
+    if is_ucr_true appcenter/apps/nextcloud/disable-saml-login; then
+        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ app:disable user_saml || true
+        return;
+    fi
+    univention-app shell nextcloud sudo -u www-data php /var/www/html/occ app:enable user_saml || true
     SETCMD="univention-app shell nextcloud sudo -u www-data php /var/www/html/occ config:app:set user_saml"
     $SETCMD type --value="saml"
     $SETCMD general-require_provisioned_account --value="1"
