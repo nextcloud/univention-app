@@ -271,30 +271,6 @@ nextcloud_configure_saml() {
             echo "Skipping SAML configuration. No IDP configured for use."
             return
         fi
-        # SimpleSAMLphp (UCS 5.0 or lower)
-        udm saml/serviceprovider create "$@" \
-            --ignore_exists \
-            --position "cn=saml-serviceprovider,cn=univention,$ldap_base" \
-            --set isActivated=TRUE \
-            --set Identifier="https://$hostname.$domainname/nextcloud/apps/user_saml/saml/metadata" \
-            --set NameIDFormat="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" \
-            --set simplesamlAttributes=TRUE \
-            --set AssertionConsumerService="https://$hostname.$domainname/nextcloud/apps/user_saml/saml/acs" \
-            --set simplesamlNameIDAttribute="uid" \
-            --set singleLogoutService="https://$hostname.$domainname/nextcloud/apps/user_saml/saml/sls" || die "Failed to create saml/serviceprovider (SimpleSAMLphp)"
-
-        IDP_CERT=$(curl -s https://"${ucs_server_sso_fqdn:-ucs-sso.$domainname}"/simplesamlphp/saml2/idp/certificate | sed -ne '
-            /-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p      # got the range, ok
-            /-END CERTIFICATE-/q                            # bailing out soon as the cert end seen
-        ')
-
-        univention-app shell nextcloud sudo -u www-data php /var/www/html/occ saml:config:set \
-            --idp-x509cert="${IDP_CERT}" \
-            --general-uid_mapping="uid" \
-            --idp-singleLogoutService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SingleLogoutService.php" \
-            --idp-singleSignOnService.url="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/SSOService.php" \
-            --idp-entityId="https://${ucs_server_sso_fqdn}/simplesamlphp/saml2/idp/metadata.php" \
-            1 || die "Could not configure simpleSAMLphp as Nextcloud Identity Provider"
     else
         IDP_CERT=$(univention-keycloak "$@" saml/idp/cert get --as-pem --output /dev/stdout)
         SSO_URL="$(univention-keycloak "$@" get-keycloak-base-url)"

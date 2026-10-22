@@ -18,10 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 app_name=nextcloud
-app_version=32.0.13-0
-app_upgrade_from=31.0.9-0
+app_version=33.0.10-0
+app_upgrade_from=32.0.13-0
 
-ucs_version=5.0
+ucs_version=5.2
 
 docker_repo=nextcloud
 docker_login=`cat ~/.docker-account-user`
@@ -59,7 +59,7 @@ push-files:
 		i18n/en/README_POST_UPDATE_EN \
 		i18n/de/README_POST_UPDATE_DE
 	univention-appcenter-control set --noninteractive $(ucs_version)/$(app_name)=$(app_version) \
-		--json '{"DockerImage": "ghcr.io/nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "5.0-3", "SupportedUCSVersions": "5.0-3,5.1-0,5.2-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
+		--json '{"DockerImage": "ghcr.io/nextcloud/univention-app:$(app_version)", "UMCOptionsAttributes": "nextcloudEnabled", "WebInterface": "/nextcloud", "MinPhysicalRam": "512", "RequiredUcsVersion": "5.2-0", "SupportedUCSVersions": "5.2-0", "RequiredAppVersionUpgrade": "$(app_upgrade_from)"}'
 
 .PHONY: docker
 docker:
